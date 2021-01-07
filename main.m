@@ -1,16 +1,17 @@
 clc;
 clear all;
 
+% STBC Parameters
 a = 1/sqrt(2);
 c = a;
 b = ((1-sqrt(7)) + 1i * (1 + sqrt(7))) / (4 * sqrt(2));
 d = -1i * b;
 
-M = 64;
-cc = 0;
-chan = 1;
-n = 1;
-QAM_CONST = qammod((0:M-1)', M, 'gray', 'UnitAveragePower', 1);
+M = 16; % QAM Alphabet
+cc = 0; % Channel Coding on/off
+chan = 1; % Add Fading Channel
+n = 1; % Add AWGN
+QAM_CONST = qammod((0:M-1)', M, 'gray', 'UnitAveragePower', 1); % QAM Constellation
 
 %% Transmitter
 numTrails = 500;
@@ -18,7 +19,7 @@ SNR_Range = (0:5:30)';
 numErr = zeros(length(SNR_Range), 1);
 for iter_trail = 1: numTrails
     for iter_snr = 1: length(SNR_Range)
-        numBits = 1026;
+        numBits = 1024;
         data = randi([1, 1], numBits, 1);
         if (cc == 1)
             encData = lteConvolutionalEncode(data);
@@ -35,7 +36,7 @@ for iter_trail = 1: numTrails
         else
             H = ones(2, 2);    
         end
-        H_hat = H; % + 0.025 * (randn(size(H)) + 1i * size(H));
+        H_hat = H + 0.05 * (randn(size(H)) + 1i * size(H));
 
         iter_qam = 1;
         for iter_sym = 1:2:length(txSignal)
