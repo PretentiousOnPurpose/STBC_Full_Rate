@@ -4536,6 +4536,22 @@ int * dlsch_stbc_min(int64_t ** MSE, uint8_t Qm) {
     return pt;
 }
 
+int64_t * dlsch_stbc_sub(int64_t * x1, int64_t * x2) {
+  int64_t * y = (int64_t *)calloc(2, sizeof(int64_t));
+  y[0] = x1[0] - x2[0];
+  y[1] = x1[1] - x2[1];
+
+  return y;
+}
+
+int64_t * dlsch_stbc_add(int64_t * x1, int64_t * x2) {
+  int64_t * y = (int64_t *)calloc(2, sizeof(int64_t));
+  y[0] = x1[0] + x2[0];
+  y[1] = x1[1] + x2[1];
+
+  return y;
+}
+
 int64_t * dlsch_stbc_mul(int64_t * x1, int64_t * x2, int conj1, int conj2) {
   int64_t * y = (int64_t *)calloc(2, sizeof(int64_t));
   
@@ -4571,6 +4587,10 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
 
   // NEED HARDCODED QAM TABLE FOR 4-QAM, 16-QAM, and 64-QAM.
   
+  // int64_t QAM_2[4] = {};
+  // int64_t QAM_4[16] = {};
+  // int64_t QAM_6[64] = {};
+
   int64_t *rxF0,*rxF1;
   int qam_pt[2];
   int64_t *ch_11,*ch_12,*ch_21,*ch_22, *rxF0_128;
@@ -4604,8 +4624,9 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
   int64_t * c = (int64_t *)calloc(2, sizeof(int64_t));
   int64_t * d = (int64_t *)calloc(2, sizeof(int64_t));
 
-  a[0] = c[0] = 0.70710678118;
-  b[0] = -0.29093047805; b[1] = 0.64448386864;
+  // HOW TO IMPLEMENT THIS USING INTEGERS
+  a[0] = c[0] = (int64_t)(0.70710678118 * (1 << 15));
+  b[0] = (int64_t)(-0.29093047805 * (1 << 15)); b[1] = (int64_t)(0.64448386864 * (1 << 15));
   d[0] = -b[1]; d[1] = b[0];
 
   for (rb=0; rb<nb_rb; rb++) {
