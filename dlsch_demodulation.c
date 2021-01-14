@@ -4688,10 +4688,20 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
       z42 = dlsch_stbc_mul(ch_21, s4, 0, 1);
       z4 = dlsch_stbc_sub(rxF1[jj+2], dlsch_stbc_mul(d, dlsch_stbc_sub(z41, z42), 0, 0));
 
-      s1[0] = ;
-      s1[1] = ;
-      s2[0] = ;
-      s2[1] = ;
+      s1 = dlsch_stbc_add(dlsch_stbc_div(dlsch_stbc_add(dlsch_stbc_mul(ch_11, z1, 1, 0), dlsch_stbc_mul(ch_21, z3, 1, 0)), a), dlsch_stbc_div(dlsch_stbc_add(dlsch_stbc_mul(ch_12, z2, 0, 1), dlsch_stbc_mul(ch_22, z4, 0, 1)), c));
+      s2 = dlsch_stbc_sub(dlsch_stbc_div(dlsch_stbc_add(dlsch_stbc_mul(ch_12, z1, 1, 0), dlsch_stbc_mul(ch_22, z3, 1, 0)), a), dlsch_stbc_div(dlsch_stbc_add(dlsch_stbc_mul(ch_11, z2, 0, 1), dlsch_stbc_mul(ch_21, z4, 0, 1)), c));
+
+      s1 = dlsch_stbc_div(s1, ch_pwr);
+      s2 = dlsch_stbc_div(s2, ch_pwr);
+
+      *rxF0_128++ = s1[0];
+      *rxF0_128++ = s1[1];
+      *rxF0_128++ = s2[0];
+      *rxF0_128++ = s2[1];
+      *rxF0_128++ = s3[0];
+      *rxF0_128++ = s3[1];
+      *rxF0_128++ = s4[0];
+      *rxF0_128++ = s4[1];
 
       rxF0 += 4;
       rxF1 += 4;
