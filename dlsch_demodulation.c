@@ -4514,6 +4514,28 @@ void dlsch_channel_level_TM7(int **dl_bf_ch_estimates_ext,
 #endif
 }
 
+int * dlsch_stbc_min(int64_t ** MSE, uint8_t Qm) {
+    int iter1, iter2;
+    int min = MSE[0][0], x = 0, y = 0;
+
+    int pt[2] = {0, 0};
+
+    for (iter1 = 0; iter1 < (1 << Qm); iter1++) {
+      for (iter2 = 0; iter2 < (1 << Qm); iter2++) {
+        if (MSE[iter1][iter2] < min) {
+            min = MSE[iter1][iter2];
+            x = iter1;
+            y = iter2;
+        }
+      }
+    }
+
+    pt[0] = x;
+    pt[1] = y;
+
+    return pt;
+}
+
 int64_t * dlsch_stbc_mul(int64_t * x1, int64_t * x2, int conj1, int conj2) {
   int64_t * y = (int64_t *)calloc(2, sizeof(int64_t));
   
@@ -4550,9 +4572,11 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
   // NEED HARDCODED QAM TABLE FOR 4-QAM, 16-QAM, and 64-QAM.
   
   int64_t *rxF0,*rxF1;
+  int qam_pt[2];
   int64_t *ch_11,*ch_12,*ch_21,*ch_22, *rxF0_128;
   int64_t z1, z11, z12, z2, z21, z22, z3, z31, z32, z4, z41, z42;
   u_int32_t ** MSE;
+  u_int64_t ch_pwr;
   int iter1, iter2;
   unsigned char rb,re;
   int jj = (symbol*frame_parms->N_RB_DL*12);
@@ -4597,21 +4621,21 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
         for (iter2 = 0; iter2 < (1 << Qm); iter2++) {
           //  Compute Squared Error
 
-          z11 = dlsch_stbc_mul(dlsch_stbc_mul(ch_11, a, 0, 0), QAM[iter1][iter2]);
-          z12 = dlsch_stbc_mul(dlsch_stbc_mul(ch_12, a, 0, 0), QAM[iter1][iter2]);
-          z1 = z11 + z12;
+          z11 = dlsch_stbc_mul(dlsch_stbc_mul(ch_11, b, 0, 0), QAM[iter1], 0, 0);
+          z12 = dlsch_stbc_mul(dlsch_stbc_mul(ch_12, b, 0, 0), QAM[iter2], 0, 0);
+          z1 = dlsch_stbc_add(z11, z12);
 
-          z21 = 
-          z22 = 
-          z2 = 
+          z21 = dlsch_stbc_mul(dlsch_stbc_mul(ch_11, d, 0, 0), QAM[iter2], 0, 1);
+          z22 = dlsch_stbc_mul(dlsch_stbc_mul(ch_12, d, 0, 0), QAM[iter1], 0, 1);
+          z2 = dlsch_stbc_sub(z22, z21);
 
-          z31 = 
-          z32 = 
-          z3 = 
+          z31 = dlsch_stbc_mul(dlsch_stbc_mul(ch_21, b, 0, 0), QAM[iter1], 0, 0);
+          z32 = dlsch_stbc_mul(dlsch_stbc_mul(ch_22, b, 0, 0), QAM[iter2], 0, 0);
+          z3 = dlsch_stbc_add(z31, z32);
 
-          z41 = 
-          z42 = 
-          z4 = 
+          z41 = dlsch_stbc_mul(dlsch_stbc_mul(ch_22, d, 0, 0), QAM[iter1], 0, 1);
+          z42 = dlsch_stbc_mul(dlsch_stbc_mul(ch_21, d, 0, 0), QAM[iter2], 0, 1);
+          z4 = dlsch_stbc_sub(z42, z41);
 
           MSE[iter1][iter2] += (rxF0[jj] - z1[0]) * (rxF0[jj] - z1[0]);
           MSE[iter1][iter2] += (rxF0[jj+1] - z1[1]) * (rxF0[jj+1] - z1[1]);
@@ -4626,13 +4650,67 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
       }
 
       // Find the(iter_qam1, iter_qam2) combination with least squared error
+      qam_pt = dlsch_stbc_min(MSE, Qm);
+      ch_pwr = dlsch_stbc_ch_pwr(ch_11, ch_12, ch_21, ch_22);
 
       // Rest two symbols have a closed form solutions given that first two symbols are known
+      
+      if (Qm == 2) {
+        s3[0] = QAM_2[qam_pt[0]][0];
+        s3[1] = QAM_2[qam_pt[0]][1];
+        s4[0] = QAM_2[qam_pt[1]][0];
+        s4[1] = QAM_2[qam_pt[1]][1];
+      } else if (Qm == 4) {
+        s3[0] = QAM_4[qam_pt[0]][0];
+        s3[1] = QAM_4[qam_pt[0]][1];
+        s4[0] = QAM_4[qam_pt[1]][0];
+        s4[1] = QAM_4[qam_pt[1]][1];
+      } else {
+        s3[0] = QAM_6[qam_pt[0]][0];
+        s3[1] = QAM_6[qam_pt[0]][1];
+        s4[0] = QAM_6[qam_pt[1]][0];
+        s4[1] = QAM_6[qam_pt[1]][1];
+      }
+      
+      z11 = dlsch_stbc_mul(ch_11, s3, 0, 0);
+      z12 = dlsch_stbc_mul(ch_12, s4, 0, 0);
+      z1 = dlsch_stbc_sub(rxF0[jj], dlsch_stbc_mul(b, dlsch_stbc_add(z11, z12), 0, 0));
 
-      rxF0+=4;
-      rxF1+=4;
+      z21 = dlsch_stbc_mul(ch_12, s3, 0, 1);
+      z22 = dlsch_stbc_mul(ch_11, s4, 0, 1);
+      z2 = dlsch_stbc_sub(rxF0[jj+2], dlsch_stbc_mul(d, dlsch_stbc_sub(z21, z22), 0, 0));
+
+      z31 = dlsch_stbc_mul(ch_21, s3, 0, 0);
+      z32 = dlsch_stbc_mul(ch_22, s4, 0, 0);
+      z3 = dlsch_stbc_sub(rxF1[jj], dlsch_stbc_mul(b, dlsch_stbc_add(z31, z32), 0, 0));
+
+      z41 = dlsch_stbc_mul(ch_22, s3, 0, 1);
+      z42 = dlsch_stbc_mul(ch_21, s4, 0, 1);
+      z4 = dlsch_stbc_sub(rxF1[jj+2], dlsch_stbc_mul(d, dlsch_stbc_sub(z41, z42), 0, 0));
+
+      s1[0] = ;
+      s1[1] = ;
+      s2[0] = ;
+      s2[1] = ;
+
+      rxF0 += 4;
+      rxF1 += 4;
+      ch_11 += 4;
+      ch_12 += 4;
+      ch_21 += 4;
+      ch_22 += 4;
+      
     }
   }
+
+  free(s1);
+  free(s2);
+  free(s3);
+  free(s4);
+  free(a);
+  free(b);
+  free(c);
+  free(d);
 
   _mm_empty();
   _m_empty();
