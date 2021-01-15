@@ -783,20 +783,21 @@ int rx_pdsch(PHY_VARS_UE *ue,
       symbol,
       nb_rb);
     */
-  } else if (dlsch0_harq->mimo_mode == ALAMOUTI) {
-    dlsch_alamouti(frame_parms,
-                   pdsch_vars[eNB_id]->rxdataF_comp0,
-                   pdsch_vars[eNB_id]->dl_ch_mag0,
-                   pdsch_vars[eNB_id]->dl_ch_magb0,
-                   symbol,
-                   nb_rb);
-  } 
-  else if (dlsch0->mimo_mode == FULL_RATE_STBC_2_2) {
-    dlsch_rx_stbc(frame_parms,
+  // } else if (dlsch0_harq->mimo_mode == ALAMOUTI) {
+  //   dlsch_alamouti(frame_parms,
+  //                  pdsch_vars[eNB_id]->rxdataF_comp0,
+  //                  pdsch_vars[eNB_id]->dl_ch_mag0,
+  //                  pdsch_vars[eNB_id]->dl_ch_magb0,
+  //                  symbol,
+  //                  nb_rb);
+  // } else if (dlsch0_harq->mimo_mode == FULL_RATE_STBC_2_2) {
+  } else {  dlsch_rx_stbc(frame_parms,
                    pdsch_vars[eNB_id]->rxdataF_ext,
+                   pdsch_vars[eNB_id]->rxdataF_comp0,
                    pdsch_vars[eNB_id]->dl_ch_estimates_ext,
                    symbol,
-                   nb_rb);
+                   nb_rb,
+                   dlsch0_harq->Qm);
   }
 
   //    printf("LLR");
@@ -4514,7 +4515,7 @@ void dlsch_channel_level_TM7(int **dl_bf_ch_estimates_ext,
 #endif
 }
 
-int * dlsch_stbc_min(int64_t ** MSE, uint8_t Qm) {
+int * dlsch_stbc_min(int16_t ** MSE, uint8_t Qm) {
     int iter1, iter2;
     int min = MSE[0][0], x = 0, y = 0;
 
@@ -4536,24 +4537,33 @@ int * dlsch_stbc_min(int64_t ** MSE, uint8_t Qm) {
     return pt;
 }
 
-int64_t * dlsch_stbc_sub(int64_t * x1, int64_t * x2) {
-  int64_t * y = (int64_t *)calloc(2, sizeof(int64_t));
+int16_t * dlsch_stbc_sub(int16_t * x1, int16_t * x2) {
+  int16_t * y = (int16_t *)calloc(2, sizeof(int16_t));
   y[0] = x1[0] - x2[0];
   y[1] = x1[1] - x2[1];
 
   return y;
 }
 
-int64_t * dlsch_stbc_add(int64_t * x1, int64_t * x2) {
-  int64_t * y = (int64_t *)calloc(2, sizeof(int64_t));
+int16_t * dlsch_stbc_add(int16_t * x1, int16_t * x2) {
+  int16_t * y = (int16_t *)calloc(2, sizeof(int16_t));
   y[0] = x1[0] + x2[0];
   y[1] = x1[1] + x2[1];
 
   return y;
 }
 
-int64_t * dlsch_stbc_mul(int64_t * x1, int64_t * x2, int conj1, int conj2) {
-  int64_t * y = (int64_t *)calloc(2, sizeof(int64_t));
+int16_t * dlsch_stbc_div(int16_t * x, int16_t c) {
+  int16_t * y = (int16_t *)calloc(2, sizeof(int16_t));
+  y[0] = x[0];
+  y[1] = x[1];
+
+  return y;
+}
+
+
+int16_t * dlsch_stbc_mul(int16_t * x1, int16_t * x2, int conj1, int conj2) {
+  int16_t * y = (int16_t *)calloc(2, sizeof(int16_t));
   
   if (conj1) {
     x1[1] = -x1[1];
@@ -4580,6 +4590,7 @@ int64_t * dlsch_stbc_mul(int64_t * x1, int64_t * x2, int conj1, int conj2) {
 
 void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
                           int ** rxdataF_ext,
+                          int ** rxdataF_comp,
                           int **dl_ch_ext,
                           unsigned char symbol,
                           unsigned short nb_rb,
@@ -4587,54 +4598,63 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
 
   // NEED HARDCODED QAM TABLE FOR 4-QAM, 16-QAM, and 64-QAM.
   
-  // int64_t QAM_2[4] = {};
-  // int64_t QAM_4[16] = {};
-  // int64_t QAM_6[64] = {};
+  int16_t QAM_2[8] = {23170 ,23170 ,23170 ,-23170 ,-23170 ,23170 ,-23170 ,-23170};
+  int16_t QAM_4[32] = {10362 ,10362 ,10362 ,31086 ,31086 ,10362 ,31086 ,31086 ,10362 ,-10362 ,10362 ,-31086 ,31086 ,-10362 ,31086 ,-31086 ,-10362 ,10362 ,-10362 ,31086 ,-31086 ,10362 ,-31086 ,31086 ,-10362 ,-10362 ,-10362 ,-31086 ,-31086 ,-10362 ,-31086 ,-31086};
+  int16_t QAM_6[128] = {15169 ,15169 ,15169 ,5057 ,5057 ,15169 ,5057 ,5057 ,15169 ,25281 ,15169 ,35393 ,5057 ,25281 ,5057 ,35393 ,25281 ,15169 ,25281 ,5057 ,35393 ,15169 ,35393 ,5057 ,25281 ,25281 ,25281 ,35393 ,35393 ,25281 ,35393 ,35393 ,15169 ,-15169 ,15169 ,-5057 ,5057 ,-15169 ,5057 ,-5057 ,15169 ,-25281 ,15169 ,-35393 ,5057 ,-25281 ,5057 ,-35393 ,25281 ,-15169 ,25281 ,-5057 ,35393 ,-15169 ,35393 ,-5057 ,25281 ,-25281 ,25281 ,-35393 ,35393 ,-25281 ,35393 ,-35393 ,-15169 ,15169 ,-15169 ,5057 ,-5057 ,15169 ,-5057 ,5057 ,-15169 ,25281 ,-15169 ,35393 ,-5057 ,25281 ,-5057 ,35393 ,-25281 ,15169 ,-25281 ,5057 ,-35393 ,15169 ,-35393 ,5057 ,-25281 ,25281 ,-25281 ,35393 ,-35393 ,25281 ,-35393 ,35393 ,-15169 ,-15169 ,-15169 ,-5057 ,-5057 ,-15169 ,-5057 ,-5057 ,-15169 ,-25281 ,-15169 ,-35393 ,-5057 ,-25281 ,-5057 ,-35393 ,-25281 ,-15169 ,-25281 ,-5057 ,-35393 ,-15169 ,-35393 ,-5057 ,-25281 ,-25281 ,-25281 ,-35393 ,-35393 ,-25281 ,-35393 ,-35393};
 
-  int64_t *rxF0,*rxF1;
-  int qam_pt[2];
-  int64_t *ch_11,*ch_12,*ch_21,*ch_22, *rxF0_128;
-  int64_t z1, z11, z12, z2, z21, z22, z3, z31, z32, z4, z41, z42;
+  int16_t *rxF0,*rxF1;
+  int * QAM_TABLE;
+  int qam_pt[2] = {0, 0};
+  int16_t *ch_11,*ch_12,*ch_21,*ch_22;
+  int16_t *z1, *z11, *z12, *z2, *z21, *z22, *z3, *z31, *z32, *z4, *z41, *z42;
   u_int32_t ** MSE;
-  u_int64_t ch_pwr;
-  int iter1, iter2;
+  u_int16_t ch_pwr;
+  int iter1, iter2,x=0,y=0,min;
   unsigned char rb,re;
   int jj = (symbol*frame_parms->N_RB_DL*12);
   uint8_t symbol_mod = (symbol>=(7-frame_parms->Ncp)) ? symbol-(7-frame_parms->Ncp) : symbol;
   uint8_t pilots = ((symbol_mod==0)||(symbol_mod==(4-frame_parms->Ncp))) ? 1 : 0;
-  rxF0_128 = (int64_t *) &rxdataF_comp[0][jj];
+  int16_t * rxF0_comp = (int16_t *) &rxdataF_comp[0][jj];
   //amp = _mm_set1_epi16(ONE_OVER_2_Q15);
 
-  rxF0     = (int64_t *)&rxdataF_ext[0][jj];
-  rxF1     = (int64_t *)&rxdataF_ext[1][jj];
-  ch_11 = (int64_t *)&dl_ch_ext[0][jj];
-  ch_12 = (int64_t *)&dl_ch_ext[1][jj];
-  ch_21 = (int64_t *)&dl_ch_ext[2][jj];
-  ch_22 = (int64_t *)&dl_ch_ext[3][jj];
+  rxF0     = (int16_t *)&rxdataF_ext[0][jj];
+  rxF1     = (int16_t *)&rxdataF_ext[1][jj];
+  ch_11 = (int16_t *)&dl_ch_ext[0][jj];
+  ch_12 = (int16_t *)&dl_ch_ext[1][jj];
+  ch_21 = (int16_t *)&dl_ch_ext[2][jj];
+  ch_22 = (int16_t *)&dl_ch_ext[3][jj];
 
   // STC - Input Symbols
-  int64_t * s1 = (int64_t *)calloc(2, sizeof(int64_t));
-  int64_t * s2 = (int64_t *)calloc(2, sizeof(int64_t));
-  int64_t * s3 = (int64_t *)calloc(2, sizeof(int64_t));
-  int64_t * s4 = (int64_t *)calloc(2, sizeof(int64_t));
+  int16_t * s1 = (int16_t *)calloc(2, sizeof(int16_t));
+  int16_t * s2 = (int16_t *)calloc(2, sizeof(int16_t));
+  int16_t * s3 = (int16_t *)calloc(2, sizeof(int16_t));
+  int16_t * s4 = (int16_t *)calloc(2, sizeof(int16_t));
           
   // STC - Coding Parameters
-  int64_t * a = (int64_t *)(int64_t *)calloc(2, sizeof(int64_t));
-  int64_t * b = (int64_t *)calloc(2, sizeof(int64_t));
-  int64_t * c = (int64_t *)calloc(2, sizeof(int64_t));
-  int64_t * d = (int64_t *)calloc(2, sizeof(int64_t));
+  int16_t * a = (int16_t *)(int16_t *)calloc(2, sizeof(int16_t));
+  int16_t * b = (int16_t *)calloc(2, sizeof(int16_t));
+  int16_t * c = (int16_t *)calloc(2, sizeof(int16_t));
+  int16_t * d = (int16_t *)calloc(2, sizeof(int16_t));
 
   // HOW TO IMPLEMENT THIS USING INTEGERS
-  a[0] = c[0] = (int64_t)(0.70710678118 * (1 << 15));
-  b[0] = (int64_t)(-0.29093047805 * (1 << 15)); b[1] = (int64_t)(0.64448386864 * (1 << 15));
+  a[0] = c[0] = (int16_t)(0.70710678118 * (1 << 15));
+  b[0] = (int16_t)(-0.29093047805 * (1 << 15)); b[1] = (int16_t)(0.64448386864 * (1 << 15));
   d[0] = -b[1]; d[1] = b[0];
 
   for (rb=0; rb<nb_rb; rb++) {
     for (re=0; re<((pilots==0)?12:8); re+=2) { 
 
-      MSE = (int64_t *)calloc((1 << Qm), sizeof(int64_t));
+      MSE = (int16_t *)calloc((1 << Qm), sizeof(int16_t));
       for (iter1 = 0; iter1 < (1 << Qm); iter1++) {
-          *(MSE + iter1) = (int64_t *)calloc((1 << Qm), sizeof(int64_t));
+          *(MSE + iter1) = (int16_t *)calloc((1 << Qm), sizeof(int16_t));
+      }
+
+      if (Qm == 2) {
+        QAM_TABLE = QAM_2;
+      } else if (Qm == 4) {
+        QAM_TABLE = QAM_4;
+      } else if (Qm == 6) {
+        QAM_TABLE = QAM_6;
       }
 
       // Bruteforce Search over QAM constellations for two symbols
@@ -4642,20 +4662,21 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
         for (iter2 = 0; iter2 < (1 << Qm); iter2++) {
           //  Compute Squared Error
 
-          z11 = dlsch_stbc_mul(dlsch_stbc_mul(ch_11, b, 0, 0), QAM[iter1], 0, 0);
-          z12 = dlsch_stbc_mul(dlsch_stbc_mul(ch_12, b, 0, 0), QAM[iter2], 0, 0);
+          z11 = dlsch_stbc_mul(ch_11, b, 0, 0);
+          z11 = dlsch_stbc_mul(z11, QAM_TABLE + 2 * iter1, 0, 0);
+          z12 = dlsch_stbc_mul(dlsch_stbc_mul(ch_12, b, 0, 0), QAM_TABLE + 2 * iter2, 0, 0);
           z1 = dlsch_stbc_add(z11, z12);
 
-          z21 = dlsch_stbc_mul(dlsch_stbc_mul(ch_11, d, 0, 0), QAM[iter2], 0, 1);
-          z22 = dlsch_stbc_mul(dlsch_stbc_mul(ch_12, d, 0, 0), QAM[iter1], 0, 1);
+          z21 = dlsch_stbc_mul(dlsch_stbc_mul(ch_11, d, 0, 0), QAM_TABLE + 2 * iter2, 0, 1);
+          z22 = dlsch_stbc_mul(dlsch_stbc_mul(ch_12, d, 0, 0), QAM_TABLE + 2 * iter1, 0, 1);
           z2 = dlsch_stbc_sub(z22, z21);
 
-          z31 = dlsch_stbc_mul(dlsch_stbc_mul(ch_21, b, 0, 0), QAM[iter1], 0, 0);
-          z32 = dlsch_stbc_mul(dlsch_stbc_mul(ch_22, b, 0, 0), QAM[iter2], 0, 0);
+          z31 = dlsch_stbc_mul(dlsch_stbc_mul(ch_21, b, 0, 0), QAM_TABLE + 2 * iter1, 0, 0);
+          z32 = dlsch_stbc_mul(dlsch_stbc_mul(ch_22, b, 0, 0), QAM_TABLE + 2 * iter2, 0, 0);
           z3 = dlsch_stbc_add(z31, z32);
 
-          z41 = dlsch_stbc_mul(dlsch_stbc_mul(ch_22, d, 0, 0), QAM[iter1], 0, 1);
-          z42 = dlsch_stbc_mul(dlsch_stbc_mul(ch_21, d, 0, 0), QAM[iter2], 0, 1);
+          z41 = dlsch_stbc_mul(dlsch_stbc_mul(ch_22, d, 0, 0), QAM_TABLE + 2 * iter1, 0, 1);
+          z42 = dlsch_stbc_mul(dlsch_stbc_mul(ch_21, d, 0, 0), QAM_TABLE + 2 * iter2, 0, 1);
           z4 = dlsch_stbc_sub(z42, z41);
 
           MSE[iter1][iter2] += (rxF0[jj] - z1[0]) * (rxF0[jj] - z1[0]);
@@ -4671,43 +4692,60 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
       }
 
       // Find the(iter_qam1, iter_qam2) combination with least squared error
-      qam_pt = dlsch_stbc_min(MSE, Qm);
-      ch_pwr = dlsch_stbc_ch_pwr(ch_11, ch_12, ch_21, ch_22);
+      min = MSE[0][0];
+
+      for (iter1 = 0; iter1 < (1 << Qm); iter1++) {
+        for (iter2 = 0; iter2 < (1 << Qm); iter2++) {
+          if (MSE[iter1][iter2] < min) {
+              min = MSE[iter1][iter2];
+              x = iter1;
+              y = iter2;
+          }
+        }
+      }
+
+      qam_pt[0] = x;
+      qam_pt[1] = y;
+
+      ch_pwr = ch_11[jj] * ch_11[jj] + ch_11[jj + 1] * ch_11[jj + 1];
+      ch_pwr += ch_11[jj + 2] * ch_11[jj + 2] + ch_11[jj + 3] * ch_11[jj + 3];
+      ch_pwr += ch_21[jj + 2] * ch_21[jj + 2] + ch_21[jj + 3] * ch_21[jj + 3];
+      ch_pwr += ch_22[jj + 2] * ch_22[jj + 2] + ch_22[jj + 3] * ch_22[jj + 3];
 
       // Rest two symbols have a closed form solutions given that first two symbols are known
       
       if (Qm == 2) {
-        s3[0] = QAM_2[qam_pt[0]][0];
-        s3[1] = QAM_2[qam_pt[0]][1];
-        s4[0] = QAM_2[qam_pt[1]][0];
-        s4[1] = QAM_2[qam_pt[1]][1];
+        s3[0] = QAM_TABLE[qam_pt[0] * 2];
+        s3[1] = QAM_TABLE[qam_pt[0] * 2 + 1];
+        s4[0] = QAM_TABLE[qam_pt[1] * 2];
+        s4[1] = QAM_TABLE[qam_pt[1] * 2 + 1];
       } else if (Qm == 4) {
-        s3[0] = QAM_4[qam_pt[0]][0];
-        s3[1] = QAM_4[qam_pt[0]][1];
-        s4[0] = QAM_4[qam_pt[1]][0];
-        s4[1] = QAM_4[qam_pt[1]][1];
+        s3[0] = QAM_TABLE[qam_pt[0] * 2];
+        s3[1] = QAM_TABLE[qam_pt[0] * 2 + 1];
+        s4[0] = QAM_TABLE[qam_pt[1] * 2];
+        s4[1] = QAM_TABLE[qam_pt[1] * 2 + 1];
       } else {
-        s3[0] = QAM_6[qam_pt[0]][0];
-        s3[1] = QAM_6[qam_pt[0]][1];
-        s4[0] = QAM_6[qam_pt[1]][0];
-        s4[1] = QAM_6[qam_pt[1]][1];
+        s3[0] = QAM_TABLE[qam_pt[0] * 2];
+        s3[1] = QAM_TABLE[qam_pt[0] * 2 + 1];
+        s4[0] = QAM_TABLE[qam_pt[1] * 2];
+        s4[1] = QAM_TABLE[qam_pt[1] * 2 + 1];
       }
       
       z11 = dlsch_stbc_mul(ch_11, s3, 0, 0);
       z12 = dlsch_stbc_mul(ch_12, s4, 0, 0);
-      z1 = dlsch_stbc_sub(rxF0[jj], dlsch_stbc_mul(b, dlsch_stbc_add(z11, z12), 0, 0));
+      z1 = dlsch_stbc_sub(rxF0, dlsch_stbc_mul(b, dlsch_stbc_add(z11, z12), 0, 0));
 
       z21 = dlsch_stbc_mul(ch_12, s3, 0, 1);
       z22 = dlsch_stbc_mul(ch_11, s4, 0, 1);
-      z2 = dlsch_stbc_sub(rxF0[jj+2], dlsch_stbc_mul(d, dlsch_stbc_sub(z21, z22), 0, 0));
+      z2 = dlsch_stbc_sub(rxF0 + 2, dlsch_stbc_mul(d, dlsch_stbc_sub(z21, z22), 0, 0));
 
       z31 = dlsch_stbc_mul(ch_21, s3, 0, 0);
       z32 = dlsch_stbc_mul(ch_22, s4, 0, 0);
-      z3 = dlsch_stbc_sub(rxF1[jj], dlsch_stbc_mul(b, dlsch_stbc_add(z31, z32), 0, 0));
+      z3 = dlsch_stbc_sub(rxF1, dlsch_stbc_mul(b, dlsch_stbc_add(z31, z32), 0, 0));
 
       z41 = dlsch_stbc_mul(ch_22, s3, 0, 1);
       z42 = dlsch_stbc_mul(ch_21, s4, 0, 1);
-      z4 = dlsch_stbc_sub(rxF1[jj+2], dlsch_stbc_mul(d, dlsch_stbc_sub(z41, z42), 0, 0));
+      z4 = dlsch_stbc_sub(rxF1 + 2, dlsch_stbc_mul(d, dlsch_stbc_sub(z41, z42), 0, 0));
 
       s1 = dlsch_stbc_add(dlsch_stbc_div(dlsch_stbc_add(dlsch_stbc_mul(ch_11, z1, 1, 0), dlsch_stbc_mul(ch_21, z3, 1, 0)), a), dlsch_stbc_div(dlsch_stbc_add(dlsch_stbc_mul(ch_12, z2, 0, 1), dlsch_stbc_mul(ch_22, z4, 0, 1)), c));
       s2 = dlsch_stbc_sub(dlsch_stbc_div(dlsch_stbc_add(dlsch_stbc_mul(ch_12, z1, 1, 0), dlsch_stbc_mul(ch_22, z3, 1, 0)), a), dlsch_stbc_div(dlsch_stbc_add(dlsch_stbc_mul(ch_11, z2, 0, 1), dlsch_stbc_mul(ch_21, z4, 0, 1)), c));
@@ -4715,14 +4753,14 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
       s1 = dlsch_stbc_div(s1, ch_pwr);
       s2 = dlsch_stbc_div(s2, ch_pwr);
 
-      *rxF0_128++ = s1[0];
-      *rxF0_128++ = s1[1];
-      *rxF0_128++ = s2[0];
-      *rxF0_128++ = s2[1];
-      *rxF0_128++ = s3[0];
-      *rxF0_128++ = s3[1];
-      *rxF0_128++ = s4[0];
-      *rxF0_128++ = s4[1];
+      *rxF0_comp++ = s1[0];
+      *rxF0_comp++ = s1[1];
+      *rxF0_comp++ = s2[0];
+      *rxF0_comp++ = s2[1];
+      *rxF0_comp++ = s3[0];
+      *rxF0_comp++ = s3[1];
+      *rxF0_comp++ = s4[0];
+      *rxF0_comp++ = s4[1];
 
       rxF0 += 4;
       rxF1 += 4;
