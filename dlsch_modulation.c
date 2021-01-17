@@ -1021,7 +1021,7 @@ int allocate_REs_in_RB(PHY_VARS_eNB* phy_vars_eNB,
         }
       }
 
-      else if (mimo_mode == FULL_RATE_STBC_2_2) {
+      else if (mimo_mode == ALAMOUTI) {
         *re_allocated = *re_allocated + 1;
 
         amp = (int16_t)(((int32_t)tmp_amp*ONE_OVER_SQRT2_Q15)>>15);
@@ -1034,10 +1034,10 @@ int allocate_REs_in_RB(PHY_VARS_eNB* phy_vars_eNB,
           int16_t * s4 = calloc(2, sizeof(int16_t));
           
           // STC - Coding Parameters
-          int16_t * a = calloc(2, sizeof(int16_t));
-          int16_t * b = calloc(2, sizeof(int16_t));
-          int16_t * c = calloc(2, sizeof(int16_t));
-          int16_t * d = calloc(2, sizeof(int16_t));
+          double * a = calloc(2, sizeof(double));
+          double * b = calloc(2, sizeof(double));
+          double * c = calloc(2, sizeof(double));
+          double * d = calloc(2, sizeof(double));
 
           a[0] = c[0] = 0.70710678118;
           b[0] = -0.29093047805; b[1] = 0.64448386864;
@@ -1335,7 +1335,7 @@ int allocate_REs_in_RB(PHY_VARS_eNB* phy_vars_eNB,
           int16_t QAM_6[128] = {15169 ,15169 ,15169 ,5057 ,5057 ,15169 ,5057 ,5057 ,15169 ,25281 ,15169 ,35393 ,5057 ,25281 ,5057 ,35393 ,25281 ,15169 ,25281 ,5057 ,35393 ,15169 ,35393 ,5057 ,25281 ,25281 ,25281 ,35393 ,35393 ,25281 ,35393 ,35393 ,15169 ,-15169 ,15169 ,-5057 ,5057 ,-15169 ,5057 ,-5057 ,15169 ,-25281 ,15169 ,-35393 ,5057 ,-25281 ,5057 ,-35393 ,25281 ,-15169 ,25281 ,-5057 ,35393 ,-15169 ,35393 ,-5057 ,25281 ,-25281 ,25281 ,-35393 ,35393 ,-25281 ,35393 ,-35393 ,-15169 ,15169 ,-15169 ,5057 ,-5057 ,15169 ,-5057 ,5057 ,-15169 ,25281 ,-15169 ,35393 ,-5057 ,25281 ,-5057 ,35393 ,-25281 ,15169 ,-25281 ,5057 ,-35393 ,15169 ,-35393 ,5057 ,-25281 ,25281 ,-25281 ,35393 ,-35393 ,25281 ,-35393 ,35393 ,-15169 ,-15169 ,-15169 ,-5057 ,-5057 ,-15169 ,-5057 ,-5057 ,-15169 ,-25281 ,-15169 ,-35393 ,-5057 ,-25281 ,-5057 ,-35393 ,-25281 ,-15169 ,-25281 ,-5057 ,-35393 ,-15169 ,-35393 ,-5057 ,-25281 ,-25281 ,-25281 ,-35393 ,-35393 ,-25281 ,-35393 ,-35393};
 
 
-          if (mod_order0 == 2) {
+          // if (mod_order0 == 2) {
             s1[0] = (1)?QAM_2[0]:-QAM_2[0];
             *jj = *jj + 1;
             s1[1] = (0)?QAM_2[0]:-QAM_2[0];
@@ -1353,11 +1353,11 @@ int allocate_REs_in_RB(PHY_VARS_eNB* phy_vars_eNB,
             s4[1] = (1)?QAM_2[0]:-QAM_2[0];
             *jj = *jj + 1;
 
-          } else if (mod_order0 == 4) {
+          // } else if (mod_order0 == 4) {
 
-          } else if (mod_order0 == 6) {
+          // } else if (mod_order0 == 6) {
 
-          }
+          // }
 
         //   break;
         // }
@@ -1371,27 +1371,27 @@ int allocate_REs_in_RB(PHY_VARS_eNB* phy_vars_eNB,
         fprintf(f, "%d - %d\n", s3[0], s3[1]);
         fprintf(f, "%d - %d\n", s4[0], s4[1]);
         
-          ((int16_t*)&txdataF[0][tti_offset])[0] += a[0] * s1[0] + b[0] * s3[0] - b[1] * s3[1];
-          ((int16_t*)&txdataF[0][tti_offset])[1] += a[0] * s1[1] + b[1] * s3[0] + b[0] * s3[1];
-          ((int16_t*)&txdataF[1][tti_offset])[0] += -c[0] * s2[0] - d[0] * s4[0] + d[1] * s4[1];
-          ((int16_t*)&txdataF[1][tti_offset])[1] += -c[0] * s2[1] - d[1] * s4[0] - d[0] * s4[1];
+          ((int16_t*)&txdataF[0][tti_offset])[0] += (int16_t)((a[0] * (double)s1[0]) + (b[0] * (double)s3[0]) - (b[1] * (double)s3[1]));
+          ((int16_t*)&txdataF[0][tti_offset])[1] += (int16_t)((a[0] * (double)s1[1]) + (b[1] * (double)s3[0]) + (b[0] * (double)s3[1]));
+          ((int16_t*)&txdataF[1][tti_offset])[0] += (int16_t)((-c[0] * (double)s2[0]) - (d[0] * (double)s4[0]) + (d[1] * (double)s4[1]));
+          ((int16_t*)&txdataF[1][tti_offset])[1] += (int16_t)((-c[0] * (double)s2[1]) - (d[1] * (double)s4[0]) - (d[0] * (double)s4[1]));
         fprintf(f, "%d - %d\n", ((int16_t*)&txdataF[0][tti_offset])[0], ((int16_t*)&txdataF[0][tti_offset])[1]);
         fprintf(f, "%d - %d\n", ((int16_t*)&txdataF[1][tti_offset])[0], ((int16_t*)&txdataF[1][tti_offset])[0]);
 
             // fill in the rest of the ALAMOUTI precoding
         if (is_not_pilot(pilots,re + 1,frame_parms->nushift,use2ndpilots)==1) {
-          ((int16_t *)&txdataF[0][tti_offset+1])[0] += a[0] * s2[0] + b[0] * s4[0] - b[1] * s4[1];
-          ((int16_t *)&txdataF[0][tti_offset+1])[1] += a[0] * s2[1] + b[1] * s4[0] + b[0] * s4[1];
-          ((int16_t *)&txdataF[1][tti_offset+1])[0] += c[0] * s2[0] + d[0] * s4[0] - d[1] * s4[1];
-          ((int16_t *)&txdataF[1][tti_offset+1])[1] += c[0] * s2[1] + d[1] * s4[0] + d[0] * s4[1];
+          ((int16_t *)&txdataF[0][tti_offset+1])[0] += (int16_t)((a[0] * (double)s2[0]) + (b[0] * (double)s4[0]) - (b[1] * (double)s4[1]));
+          ((int16_t *)&txdataF[0][tti_offset+1])[1] += (int16_t)((a[0] * (double)s2[1]) + (b[1] * (double)s4[0]) + (b[0] * (double)s4[1]));
+          ((int16_t *)&txdataF[1][tti_offset+1])[0] += (int16_t)((c[0] * (double)s2[0]) + (d[0] * (double)s4[0]) - (d[1] * (double)s4[1]));
+          ((int16_t *)&txdataF[1][tti_offset+1])[1] += (int16_t)((c[0] * (double)s2[1]) + (d[1] * (double)s4[0]) + (d[0] * (double)s4[1]));
         fprintf(f, "%d - %d\n", ((int16_t*)&txdataF[0][tti_offset + 1])[0], ((int16_t*)&txdataF[0][tti_offset + 1])[1]);
         fprintf(f, "%d - %d\n", ((int16_t*)&txdataF[1][tti_offset + 1])[0], ((int16_t*)&txdataF[1][tti_offset + 1])[0]);
         }
         else {
-          ((int16_t *)&txdataF[0][tti_offset+2])[0] += a[0] * s2[0] + b[0] * s4[0] - b[1] * s4[1];
-          ((int16_t *)&txdataF[0][tti_offset+2])[1] += a[0] * s2[1] + b[1] * s4[0] + b[0] * s4[1];
-          ((int16_t *)&txdataF[1][tti_offset+2])[0] += c[0] * s2[0] + d[0] * s4[0] - d[1] * s4[1]; 
-          ((int16_t *)&txdataF[1][tti_offset+2])[1] += c[0] * s2[1] + d[1] * s4[0] + d[0] * s4[1];
+          ((int16_t *)&txdataF[0][tti_offset+2])[0] += (int16_t)((a[0] * (double)s2[0]) + (b[0] * (double)s4[0]) - (b[1] * (double)s4[1]));
+          ((int16_t *)&txdataF[0][tti_offset+2])[1] += (int16_t)((a[0] * (double)s2[1]) + (b[1] * (double)s4[0]) + (b[0] * (double)s4[1]));
+          ((int16_t *)&txdataF[1][tti_offset+2])[0] += (int16_t)((c[0] * (double)s2[0]) + (d[0] * (double)s4[0]) - (d[1] * (double)s4[1])); 
+          ((int16_t *)&txdataF[1][tti_offset+2])[1] += (int16_t)((c[0] * (double)s2[1]) + (d[1] * (double)s4[0]) + (d[0] * (double)s4[1]));
         fprintf(f, "%d - %d\n", ((int16_t*)&txdataF[0][tti_offset + 2])[0], ((int16_t*)&txdataF[0][tti_offset + 2])[1]);
         fprintf(f, "%d - %d\n", ((int16_t*)&txdataF[1][tti_offset + 2])[0], ((int16_t*)&txdataF[1][tti_offset + 2])[0]);
         }
@@ -1408,9 +1408,11 @@ int allocate_REs_in_RB(PHY_VARS_eNB* phy_vars_eNB,
         free(c);
         free(d);
 
+        exit(0);
+
       }
 
-      else if (mimo_mode == ALAMOUTI) {
+      else if (mimo_mode == FULL_RATE_STBC_2_2) {
         *re_allocated = *re_allocated + 1;
 
         amp = (int16_t)(((int32_t)tmp_amp*ONE_OVER_SQRT2_Q15)>>15);
