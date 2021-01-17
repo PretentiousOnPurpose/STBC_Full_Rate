@@ -1044,301 +1044,339 @@ int allocate_REs_in_RB(PHY_VARS_eNB* phy_vars_eNB,
           d[0] = -b[1]; d[1] = b[0];
 
 
-        switch (mod_order0) {
+        // switch (mod_order0) {
 
-          // first antenna position n -> x0
+
           
-          case 2:  //QPSK
-            s1[0] = (x0[*jj]==1) ? (-gain_lin_QPSK) : gain_lin_QPSK;
-            *jj=*jj+1;
-            s1[1] = (x0[*jj]==1) ? (-gain_lin_QPSK) : gain_lin_QPSK;
-            *jj=*jj+1;
+          
+        //   case 2:  //QPSK
+        //     s1[0] = (x0[*jj]==1) ? (-gain_lin_QPSK) : gain_lin_QPSK;
+        //     *jj=*jj+1;
+        //     s1[1] = (x0[*jj]==1) ? (-gain_lin_QPSK) : gain_lin_QPSK;
+        //     *jj=*jj+1;
 
-            s2[0] = (x0[*jj]==1) ? (-gain_lin_QPSK) : gain_lin_QPSK;
-            *jj=*jj+1;
-            s2[1] = (x0[*jj]==1) ? (-gain_lin_QPSK) : gain_lin_QPSK;
-            *jj=*jj+1;
+        //     s2[0] = (x0[*jj]==1) ? (-gain_lin_QPSK) : gain_lin_QPSK;
+        //     *jj=*jj+1;
+        //     s2[1] = (x0[*jj]==1) ? (-gain_lin_QPSK) : gain_lin_QPSK;
+        //     *jj=*jj+1;
 
-            s3[0] = (x0[*jj]==1) ? (-gain_lin_QPSK) : gain_lin_QPSK;
-            *jj=*jj+1;
-            s3[1] = (x0[*jj]==1) ? (-gain_lin_QPSK) : gain_lin_QPSK;
-            *jj=*jj+1;
+        //     s3[0] = (x0[*jj]==1) ? (-gain_lin_QPSK) : gain_lin_QPSK;
+        //     *jj=*jj+1;
+        //     s3[1] = (x0[*jj]==1) ? (-gain_lin_QPSK) : gain_lin_QPSK;
+        //     *jj=*jj+1;
 
-            s4[0] = (x0[*jj]==1) ? (-gain_lin_QPSK) : gain_lin_QPSK;
-            *jj=*jj+1;
-            s4[1] = (x0[*jj]==1) ? (-gain_lin_QPSK) : gain_lin_QPSK;
-            *jj=*jj+1;
+        //     s4[0] = (x0[*jj]==1) ? (-gain_lin_QPSK) : gain_lin_QPSK;
+        //     *jj=*jj+1;
+        //     s4[1] = (x0[*jj]==1) ? (-gain_lin_QPSK) : gain_lin_QPSK;
+        //     *jj=*jj+1;
 
-          break;
+        //   break;
 
-          case 4: // 16-QAM
+        //   case 4: // 16-QAM
 
 
-            qam16_table_offset_re = 0;
-            qam16_table_offset_im = 0;
+        //     qam16_table_offset_re = 0;
+        //     qam16_table_offset_im = 0;
 
-            if (x0[*jj] == 1)
-              qam16_table_offset_re+=2;
+        //     if (x0[*jj] == 1)
+        //       qam16_table_offset_re+=2;
 
-            *jj=*jj+1;
+        //     *jj=*jj+1;
 
-            if (x0[*jj] == 1)
-              qam16_table_offset_im+=2;
+        //     if (x0[*jj] == 1)
+        //       qam16_table_offset_im+=2;
 
-            *jj=*jj+1;
+        //     *jj=*jj+1;
 
 
-            if (x0[*jj] == 1)
-              qam16_table_offset_re+=1;
+        //     if (x0[*jj] == 1)
+        //       qam16_table_offset_re+=1;
 
-            *jj=*jj+1;
+        //     *jj=*jj+1;
 
-            if (x0[*jj] == 1)
-              qam16_table_offset_im+=1;
+        //     if (x0[*jj] == 1)
+        //       qam16_table_offset_im+=1;
 
-            *jj=*jj+1;
+        //     *jj=*jj+1;
 
-            s1[0]+=qam_table_s0[qam16_table_offset_re];
-            s1[1]+=qam_table_s0[qam16_table_offset_im];
+        //     s1[0]+=qam_table_s0[qam16_table_offset_re];
+        //     s1[1]+=qam_table_s0[qam16_table_offset_im];
 
-            qam16_table_offset_re = 0;
-            qam16_table_offset_im = 0;
+        //     qam16_table_offset_re = 0;
+        //     qam16_table_offset_im = 0;
 
-            if (x0[*jj] == 1)
-              qam16_table_offset_re+=2;
+        //     if (x0[*jj] == 1)
+        //       qam16_table_offset_re+=2;
 
-            *jj=*jj+1;
+        //     *jj=*jj+1;
 
-            if (x0[*jj] == 1)
-              qam16_table_offset_im+=2;
+        //     if (x0[*jj] == 1)
+        //       qam16_table_offset_im+=2;
 
-            *jj=*jj+1;
+        //     *jj=*jj+1;
 
 
-            if (x0[*jj] == 1)
-              qam16_table_offset_re+=1;
+        //     if (x0[*jj] == 1)
+        //       qam16_table_offset_re+=1;
 
-            *jj=*jj+1;
+        //     *jj=*jj+1;
 
-            if (x0[*jj] == 1)
-              qam16_table_offset_im+=1;
+        //     if (x0[*jj] == 1)
+        //       qam16_table_offset_im+=1;
 
-            *jj=*jj+1;
+        //     *jj=*jj+1;
 
-            s2[0]+=qam_table_s0[qam16_table_offset_re];
-            s2[1]+=qam_table_s0[qam16_table_offset_im];
+        //     s2[0]+=qam_table_s0[qam16_table_offset_re];
+        //     s2[1]+=qam_table_s0[qam16_table_offset_im];
 
-            qam16_table_offset_re = 0;
-            qam16_table_offset_im = 0;
+        //     qam16_table_offset_re = 0;
+        //     qam16_table_offset_im = 0;
 
-            if (x0[*jj] == 1)
-              qam16_table_offset_re+=2;
+        //     if (x0[*jj] == 1)
+        //       qam16_table_offset_re+=2;
 
-            *jj=*jj+1;
+        //     *jj=*jj+1;
 
-            if (x0[*jj] == 1)
-              qam16_table_offset_im+=2;
+        //     if (x0[*jj] == 1)
+        //       qam16_table_offset_im+=2;
 
-            *jj=*jj+1;
+        //     *jj=*jj+1;
 
 
-            if (x0[*jj] == 1)
-              qam16_table_offset_re+=1;
+        //     if (x0[*jj] == 1)
+        //       qam16_table_offset_re+=1;
 
-            *jj=*jj+1;
+        //     *jj=*jj+1;
 
-            if (x0[*jj] == 1)
-              qam16_table_offset_im+=1;
+        //     if (x0[*jj] == 1)
+        //       qam16_table_offset_im+=1;
 
-            *jj=*jj+1;
+        //     *jj=*jj+1;
 
-            s3[0]+=qam_table_s0[qam16_table_offset_re];
-            s3[1]+=qam_table_s0[qam16_table_offset_im];
+        //     s3[0]+=qam_table_s0[qam16_table_offset_re];
+        //     s3[1]+=qam_table_s0[qam16_table_offset_im];
 
-            qam16_table_offset_re = 0;
-            qam16_table_offset_im = 0;
+        //     qam16_table_offset_re = 0;
+        //     qam16_table_offset_im = 0;
 
-            if (x0[*jj] == 1)
-              qam16_table_offset_re+=2;
+        //     if (x0[*jj] == 1)
+        //       qam16_table_offset_re+=2;
 
-            *jj=*jj+1;
+        //     *jj=*jj+1;
 
-            if (x0[*jj] == 1)
-              qam16_table_offset_im+=2;
+        //     if (x0[*jj] == 1)
+        //       qam16_table_offset_im+=2;
 
-            *jj=*jj+1;
+        //     *jj=*jj+1;
 
 
-            if (x0[*jj] == 1)
-              qam16_table_offset_re+=1;
+        //     if (x0[*jj] == 1)
+        //       qam16_table_offset_re+=1;
 
-            *jj=*jj+1;
+        //     *jj=*jj+1;
 
-            if (x0[*jj] == 1)
-              qam16_table_offset_im+=1;
+        //     if (x0[*jj] == 1)
+        //       qam16_table_offset_im+=1;
 
-            *jj=*jj+1;
+        //     *jj=*jj+1;
 
-            s4[0]+=qam_table_s0[qam16_table_offset_re];
-            s4[1]+=qam_table_s0[qam16_table_offset_im];
+        //     s4[0]+=qam_table_s0[qam16_table_offset_re];
+        //     s4[1]+=qam_table_s0[qam16_table_offset_im];
 
 
-          break;
+        //   break;
 
-          case 6: // 64-QAM
-            qam64_table_offset_re = 0;
-            qam64_table_offset_im = 0;
+        //   case 6: // 64-QAM
+        //     qam64_table_offset_re = 0;
+        //     qam64_table_offset_im = 0;
 
-            if (x0[*jj] == 1)
-              qam64_table_offset_re+=4;
+        //     if (x0[*jj] == 1)
+        //       qam64_table_offset_re+=4;
 
-            *jj=*jj+1;
+        //     *jj=*jj+1;
 
-            if (x0[*jj] == 1)
-              qam64_table_offset_im+=4;
+        //     if (x0[*jj] == 1)
+        //       qam64_table_offset_im+=4;
 
-            *jj=*jj+1;
+        //     *jj=*jj+1;
 
-            if (x0[*jj] == 1)
-              qam64_table_offset_re+=2;
+        //     if (x0[*jj] == 1)
+        //       qam64_table_offset_re+=2;
 
-            *jj=*jj+1;
+        //     *jj=*jj+1;
 
-            if (x0[*jj] == 1)
-              qam64_table_offset_im+=2;
+        //     if (x0[*jj] == 1)
+        //       qam64_table_offset_im+=2;
 
-            *jj=*jj+1;
+        //     *jj=*jj+1;
 
-            if (x0[*jj] == 1)
-              qam64_table_offset_re+=1;
+        //     if (x0[*jj] == 1)
+        //       qam64_table_offset_re+=1;
 
-            *jj=*jj+1;
+        //     *jj=*jj+1;
 
-            if (x0[*jj] == 1)
-              qam64_table_offset_im+=1;
+        //     if (x0[*jj] == 1)
+        //       qam64_table_offset_im+=1;
 
-            *jj=*jj+1;
+        //     *jj=*jj+1;
 
-            s1[0]+=qam_table_s0[qam64_table_offset_re];
-            s1[1]+=qam_table_s0[qam64_table_offset_im];
+        //     s1[0]+=qam_table_s0[qam64_table_offset_re];
+        //     s1[1]+=qam_table_s0[qam64_table_offset_im];
 
-            qam64_table_offset_re = 0;
-            qam64_table_offset_im = 0;
+        //     qam64_table_offset_re = 0;
+        //     qam64_table_offset_im = 0;
 
-            if (x0[*jj] == 1)
-              qam64_table_offset_re+=4;
+        //     if (x0[*jj] == 1)
+        //       qam64_table_offset_re+=4;
 
-            *jj=*jj+1;
+        //     *jj=*jj+1;
 
-            if (x0[*jj] == 1)
-              qam64_table_offset_im+=4;
+        //     if (x0[*jj] == 1)
+        //       qam64_table_offset_im+=4;
 
-            *jj=*jj+1;
+        //     *jj=*jj+1;
 
-            if (x0[*jj] == 1)
-              qam64_table_offset_re+=2;
+        //     if (x0[*jj] == 1)
+        //       qam64_table_offset_re+=2;
 
-            *jj=*jj+1;
+        //     *jj=*jj+1;
 
-            if (x0[*jj] == 1)
-              qam64_table_offset_im+=2;
+        //     if (x0[*jj] == 1)
+        //       qam64_table_offset_im+=2;
 
-            *jj=*jj+1;
+        //     *jj=*jj+1;
 
-            if (x0[*jj] == 1)
-              qam64_table_offset_re+=1;
+        //     if (x0[*jj] == 1)
+        //       qam64_table_offset_re+=1;
 
-            *jj=*jj+1;
+        //     *jj=*jj+1;
 
-            if (x0[*jj] == 1)
-              qam64_table_offset_im+=1;
+        //     if (x0[*jj] == 1)
+        //       qam64_table_offset_im+=1;
 
-            *jj=*jj+1;
+        //     *jj=*jj+1;
 
-            s2[0]+=qam_table_s0[qam64_table_offset_re];
-            s2[1]+=qam_table_s0[qam64_table_offset_im];
+        //     s2[0]+=qam_table_s0[qam64_table_offset_re];
+        //     s2[1]+=qam_table_s0[qam64_table_offset_im];
 
-            qam64_table_offset_re = 0;
-            qam64_table_offset_im = 0;
+        //     qam64_table_offset_re = 0;
+        //     qam64_table_offset_im = 0;
 
-            if (x0[*jj] == 1)
-              qam64_table_offset_re+=4;
+        //     if (x0[*jj] == 1)
+        //       qam64_table_offset_re+=4;
 
-            *jj=*jj+1;
+        //     *jj=*jj+1;
 
-            if (x0[*jj] == 1)
-              qam64_table_offset_im+=4;
+        //     if (x0[*jj] == 1)
+        //       qam64_table_offset_im+=4;
 
-            *jj=*jj+1;
+        //     *jj=*jj+1;
 
-            if (x0[*jj] == 1)
-              qam64_table_offset_re+=2;
+        //     if (x0[*jj] == 1)
+        //       qam64_table_offset_re+=2;
 
-            *jj=*jj+1;
+        //     *jj=*jj+1;
 
-            if (x0[*jj] == 1)
-              qam64_table_offset_im+=2;
+        //     if (x0[*jj] == 1)
+        //       qam64_table_offset_im+=2;
 
-            *jj=*jj+1;
+        //     *jj=*jj+1;
 
-            if (x0[*jj] == 1)
-              qam64_table_offset_re+=1;
+        //     if (x0[*jj] == 1)
+        //       qam64_table_offset_re+=1;
 
-            *jj=*jj+1;
+        //     *jj=*jj+1;
 
-            if (x0[*jj] == 1)
-              qam64_table_offset_im+=1;
+        //     if (x0[*jj] == 1)
+        //       qam64_table_offset_im+=1;
 
-            *jj=*jj+1;
+        //     *jj=*jj+1;
 
-            s3[0]+=qam_table_s0[qam64_table_offset_re];
-            s3[1]+=qam_table_s0[qam64_table_offset_im];
+        //     s3[0]+=qam_table_s0[qam64_table_offset_re];
+        //     s3[1]+=qam_table_s0[qam64_table_offset_im];
 
-            qam64_table_offset_re = 0;
-            qam64_table_offset_im = 0;
+        //     qam64_table_offset_re = 0;
+        //     qam64_table_offset_im = 0;
 
-            if (x0[*jj] == 1)
-              qam64_table_offset_re+=4;
+        //     if (x0[*jj] == 1)
+        //       qam64_table_offset_re+=4;
 
-            *jj=*jj+1;
+        //     *jj=*jj+1;
 
-            if (x0[*jj] == 1)
-              qam64_table_offset_im+=4;
+        //     if (x0[*jj] == 1)
+        //       qam64_table_offset_im+=4;
 
-            *jj=*jj+1;
+        //     *jj=*jj+1;
 
-            if (x0[*jj] == 1)
-              qam64_table_offset_re+=2;
+        //     if (x0[*jj] == 1)
+        //       qam64_table_offset_re+=2;
 
-            *jj=*jj+1;
+        //     *jj=*jj+1;
 
-            if (x0[*jj] == 1)
-              qam64_table_offset_im+=2;
+        //     if (x0[*jj] == 1)
+        //       qam64_table_offset_im+=2;
 
-            *jj=*jj+1;
+        //     *jj=*jj+1;
 
-            if (x0[*jj] == 1)
-              qam64_table_offset_re+=1;
+        //     if (x0[*jj] == 1)
+        //       qam64_table_offset_re+=1;
 
-            *jj=*jj+1;
+        //     *jj=*jj+1;
 
-            if (x0[*jj] == 1)
-              qam64_table_offset_im+=1;
+        //     if (x0[*jj] == 1)
+        //       qam64_table_offset_im+=1;
 
-            *jj=*jj+1;
+        //     *jj=*jj+1;
 
-            s4[0]+=qam_table_s0[qam64_table_offset_re];
-            s4[1]+=qam_table_s0[qam64_table_offset_im];
+        //     s4[0]+=qam_table_s0[qam64_table_offset_re];
+        //     s4[1]+=qam_table_s0[qam64_table_offset_im];
+          int16_t QAM_2[8] = {23170 ,23170 ,23170 ,-23170 ,-23170 ,23170 ,-23170 ,-23170};
+          int16_t QAM_4[32] = {10362 ,10362 ,10362 ,31086 ,31086 ,10362 ,31086 ,31086 ,10362 ,-10362 ,10362 ,-31086 ,31086 ,-10362 ,31086 ,-31086 ,-10362 ,10362 ,-10362 ,31086 ,-31086 ,10362 ,-31086 ,31086 ,-10362 ,-10362 ,-10362 ,-31086 ,-31086 ,-10362 ,-31086 ,-31086};
+          int16_t QAM_6[128] = {15169 ,15169 ,15169 ,5057 ,5057 ,15169 ,5057 ,5057 ,15169 ,25281 ,15169 ,35393 ,5057 ,25281 ,5057 ,35393 ,25281 ,15169 ,25281 ,5057 ,35393 ,15169 ,35393 ,5057 ,25281 ,25281 ,25281 ,35393 ,35393 ,25281 ,35393 ,35393 ,15169 ,-15169 ,15169 ,-5057 ,5057 ,-15169 ,5057 ,-5057 ,15169 ,-25281 ,15169 ,-35393 ,5057 ,-25281 ,5057 ,-35393 ,25281 ,-15169 ,25281 ,-5057 ,35393 ,-15169 ,35393 ,-5057 ,25281 ,-25281 ,25281 ,-35393 ,35393 ,-25281 ,35393 ,-35393 ,-15169 ,15169 ,-15169 ,5057 ,-5057 ,15169 ,-5057 ,5057 ,-15169 ,25281 ,-15169 ,35393 ,-5057 ,25281 ,-5057 ,35393 ,-25281 ,15169 ,-25281 ,5057 ,-35393 ,15169 ,-35393 ,5057 ,-25281 ,25281 ,-25281 ,35393 ,-35393 ,25281 ,-35393 ,35393 ,-15169 ,-15169 ,-15169 ,-5057 ,-5057 ,-15169 ,-5057 ,-5057 ,-15169 ,-25281 ,-15169 ,-35393 ,-5057 ,-25281 ,-5057 ,-35393 ,-25281 ,-15169 ,-25281 ,-5057 ,-35393 ,-15169 ,-35393 ,-5057 ,-25281 ,-25281 ,-25281 ,-35393 ,-35393 ,-25281 ,-35393 ,-35393};
 
-          break;
-        }
+
+          if (mod_order0 == 2) {
+            s1[0] = (1)?QAM_2[0]:-QAM_2[0];
+            *jj = *jj + 1;
+            s1[1] = (0)?QAM_2[0]:-QAM_2[0];
+            *jj = *jj + 1;
+            s2[0] = (0)?QAM_2[0]:-QAM_2[0];
+            *jj = *jj + 1;
+            s2[1] = (1)?QAM_2[0]:-QAM_2[0];
+            *jj = *jj + 1;
+            s3[0] = (1)?QAM_2[0]:-QAM_2[0];
+            *jj = *jj + 1;
+            s3[1] = (0)?QAM_2[0]:-QAM_2[0];
+            *jj = *jj + 1;
+            s4[0] = (0)?QAM_2[0]:-QAM_2[0];
+            *jj = *jj + 1;
+            s4[1] = (1)?QAM_2[0]:-QAM_2[0];
+            *jj = *jj + 1;
+
+          } else if (mod_order0 == 4) {
+
+          } else if (mod_order0 == 6) {
+
+          }
+
+        //   break;
+        // }
 
         // Following this paper: https://ieeexplore.ieee.org/document/4400756
 
+
+        FILE * f = fopen("TEST_QAM.txt", "w");
+        fprintf(f, "%d - %d\n", s1[0], s1[1]);
+        fprintf(f, "%d - %d\n", s2[0], s2[1]);
+        fprintf(f, "%d - %d\n", s3[0], s3[1]);
+        fprintf(f, "%d - %d\n", s4[0], s4[1]);
+        
           ((int16_t*)&txdataF[0][tti_offset])[0] += a[0] * s1[0] + b[0] * s3[0] - b[1] * s3[1];
           ((int16_t*)&txdataF[0][tti_offset])[1] += a[0] * s1[1] + b[1] * s3[0] + b[0] * s3[1];
           ((int16_t*)&txdataF[1][tti_offset])[0] += -c[0] * s2[0] - d[0] * s4[0] + d[1] * s4[1];
           ((int16_t*)&txdataF[1][tti_offset])[1] += -c[0] * s2[1] - d[1] * s4[0] - d[0] * s4[1];
+        fprintf(f, "%d - %d\n", ((int16_t*)&txdataF[0][tti_offset])[0], ((int16_t*)&txdataF[0][tti_offset])[1]);
+        fprintf(f, "%d - %d\n", ((int16_t*)&txdataF[1][tti_offset])[0], ((int16_t*)&txdataF[1][tti_offset])[0]);
 
             // fill in the rest of the ALAMOUTI precoding
         if (is_not_pilot(pilots,re + 1,frame_parms->nushift,use2ndpilots)==1) {
@@ -1346,14 +1384,20 @@ int allocate_REs_in_RB(PHY_VARS_eNB* phy_vars_eNB,
           ((int16_t *)&txdataF[0][tti_offset+1])[1] += a[0] * s2[1] + b[1] * s4[0] + b[0] * s4[1];
           ((int16_t *)&txdataF[1][tti_offset+1])[0] += c[0] * s2[0] + d[0] * s4[0] - d[1] * s4[1];
           ((int16_t *)&txdataF[1][tti_offset+1])[1] += c[0] * s2[1] + d[1] * s4[0] + d[0] * s4[1];
+        fprintf(f, "%d - %d\n", ((int16_t*)&txdataF[0][tti_offset + 1])[0], ((int16_t*)&txdataF[0][tti_offset + 1])[1]);
+        fprintf(f, "%d - %d\n", ((int16_t*)&txdataF[1][tti_offset + 1])[0], ((int16_t*)&txdataF[1][tti_offset + 1])[0]);
         }
         else {
           ((int16_t *)&txdataF[0][tti_offset+2])[0] += a[0] * s2[0] + b[0] * s4[0] - b[1] * s4[1];
           ((int16_t *)&txdataF[0][tti_offset+2])[1] += a[0] * s2[1] + b[1] * s4[0] + b[0] * s4[1];
           ((int16_t *)&txdataF[1][tti_offset+2])[0] += c[0] * s2[0] + d[0] * s4[0] - d[1] * s4[1]; 
           ((int16_t *)&txdataF[1][tti_offset+2])[1] += c[0] * s2[1] + d[1] * s4[0] + d[0] * s4[1];
+        fprintf(f, "%d - %d\n", ((int16_t*)&txdataF[0][tti_offset + 2])[0], ((int16_t*)&txdataF[0][tti_offset + 2])[1]);
+        fprintf(f, "%d - %d\n", ((int16_t*)&txdataF[1][tti_offset + 2])[0], ((int16_t*)&txdataF[1][tti_offset + 2])[0]);
         }
+        
 
+        fclose(f);
 
         free(s1);
         free(s2);
@@ -1376,7 +1420,7 @@ int allocate_REs_in_RB(PHY_VARS_eNB* phy_vars_eNB,
         case 2:  //QPSK
 
           // first antenna position n -> x0
-
+          // LOG_UI(PHY,"IISc: %d\n", gain_lin_QPSK);
           ((int16_t*)&tmp_sample1)[0] = (x0[*jj]==1) ? (-gain_lin_QPSK) : gain_lin_QPSK;
           *jj=*jj+1;
           ((int16_t*)&tmp_sample1)[1] = (x0[*jj]==1) ? (-gain_lin_QPSK) : gain_lin_QPSK;
