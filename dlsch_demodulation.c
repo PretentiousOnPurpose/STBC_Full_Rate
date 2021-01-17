@@ -4791,9 +4791,25 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
       s4[0] = QAM_TABLE[qam_pt[1] * 2];
       s4[1] = QAM_TABLE[qam_pt[1] * 2 + 1];
 
-      z11 = dlsch_stbc_mul(ch_11, s3, 0, 0);
-      z12 = dlsch_stbc_mul(ch_12, s4, 0, 0);
-      z1 = dlsch_stbc_sub(rxF0, dlsch_stbc_mul(b, dlsch_stbc_add(z11, z12), 0, 0));
+      // z11 = dlsch_stbc_mul(ch_11, s3, 0, 0);
+      z11[0] = (int16_t)((double)ch_11[0] * s3[0] - (double)ch_11[1] * s3[1]);
+      z11[1] = (int16_t)((double)ch_11[0] * s3[1] + (double)ch_11[1] * s3[0]);
+
+      // z12 = dlsch_stbc_mul(ch_12, s4, 0, 0);
+      z12[0] = (int16_t)((double)ch_12[0] * s4[0] - (double)ch_12[1] * s4[1]);
+      z12[1] = (int16_t)((double)ch_12[0] * s4[1] + (double)ch_12[1] * s4[0]);
+      
+      // dlsch_stbc_add(z11, z12)
+      z11[0] = z11[0] + z12[0];
+      z11[1] = z11[1] + z12[1];
+      
+      //  dlsch_stbc_mul(b, z11, 0, 0)
+      z11[0] = z11[0] * b[0] - z11[1] * b[1];
+      z11[1] = z11[0] * b[1] + z11[1] * b[0];
+
+      // z1 = dlsch_stbc_sub(rxF0, z11);
+      z1[0] = rxF0[0] - z11[0];
+      z1[1] = rxF0[1] - z11[01;
 
       z21 = dlsch_stbc_mul(ch_12, s3, 0, 1);
       z22 = dlsch_stbc_mul(ch_11, s4, 0, 1);
