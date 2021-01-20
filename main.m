@@ -11,7 +11,7 @@ M = 4; % QAM Alphabet
 cc = 0; % Channel Coding on/off
 chan = 1; % Add Fading Channel
 n = 0; % Add AWGN
-QAM_CONST = qammod((0:M-1)', M, 'gray', 'UnitAveragePower', 1); % QAM Constellation
+QAM_CONST = round((sqrt(2) * qammod((0:M-1)', M, 'gray', 'UnitAveragePower', 1)) * 23170); % QAM Constellation
 
 %% Transmitter
 numTrails = 1;
@@ -28,7 +28,7 @@ for iter_trail = 1: numTrails
             encData = data;
         end
         modData = qammod(double(encData), M, 'gray', 'InputType', 'bit', 'UnitAveragePower', 1);
-
+        modData = round((sqrt(2) * modData) * 23170);
         txSignal = zeros(2, length(modData) / 2);
         
         if (chan == 1)
