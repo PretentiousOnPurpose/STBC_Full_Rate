@@ -4549,14 +4549,14 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
   rxF0     = (int16_t *)&rxdataF_ext[0][jj];
   rxF1     = (int16_t *)&rxdataF_ext[1][jj];
   
-  rxF0[0] = 38057;
-  rxF0[1] = 8192;
-  rxF0[2] = 8192;
-  rxF0[3] = -38057;
-  rxF1[0] = -8192;
-  rxF1[1] = 5290;
-  rxF1[2] = -5290;
-  rxF1[3] = -8192;
+  rxF0[0] = -32704;
+  rxF0[1] = 21118;
+  rxF0[2] =-9533;
+  rxF0[3] = -2052;
+  rxF1[0] = -32704;
+  rxF1[1] = 21118;
+  rxF1[2] = -9533;
+  rxF1[3] = -2052;
 
 
   Qm = 2;
@@ -4608,6 +4608,12 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
   b[0] = -2909; b[1] = 6444;
   d[0] = -b[1]; d[1] = b[0];
 
+  // ch_pwr = ch_11[jj] * ch_11[jj] + ch_11[jj + 1] * ch_11[jj + 1];
+  // ch_pwr += ch_11[jj + 2] * ch_11[jj + 2] + ch_11[jj + 3] * ch_11[jj + 3];
+  // ch_pwr += ch_21[jj + 2] * ch_21[jj + 2] + ch_21[jj + 3] * ch_21[jj + 3];
+  // ch_pwr += ch_22[jj + 2] * ch_22[jj + 2] + ch_22[jj + 3] * ch_22[jj + 3];
+  ch_pwr = 4;
+
   for (rb=0; rb<nb_rb; rb++) {
     for (re=0; re<((pilots==0)?12:8); re+=2) { 
 
@@ -4634,11 +4640,122 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
           s4[0] = QAM_TABLE[2 * iter2];
           s4[1] = QAM_TABLE[2 * iter2 + 1];
           
+          // z11 = dlsch_stbc_mul(ch_11, s3, 0, 0);
+          z11[0] = (ch_11[0] * s3[0] - ch_11[1] * s3[1]);
+          z11[1] = (ch_11[0] * s3[1] + ch_11[1] * s3[0]);
+
+          // z12 = dlsch_stbc_mul(ch_12, s4, 0, 0);
+          z12[0] = (ch_12[0] * s4[0] - ch_12[1] * s4[1]);
+          z12[1] = (ch_12[0] * s4[1] + ch_12[1] * s4[0]);
+          
+          // dlsch_stbc_add(z11, z12)
+          z11[0] = z11[0] + z12[0];
+          z11[1] = z11[1] + z12[1];
+          
+          //  dlsch_stbc_mul(b, z11, 0, 0)
+          z12[0] = z11[0] * (b[0] / 10000) - z11[1] * (b[1] / 10000);
+          z12[1] = z11[0] * (b[1] / 10000) + z11[1] * (b[0] / 10000);
+
+          // z1 = dlsch_stbc_sub(rxF0, z12);
+          z1[0] = rxF0[0] - z12[0];
+          z1[1] = rxF0[1] - z12[1];
+
+          // z21 = dlsch_stbc_mul(ch_12, s3, 0, 1);
+          z21[0] = (ch_12[0] * s3[0] - ch_12[1] * -s3[1]);
+          z21[1] = (ch_12[0] * -s3[1] + ch_12[1] * s3[0]);
+
+          // z22 = dlsch_stbc_mul(ch_11, s4, 0, 1);
+          z22[0] = (ch_11[0] * s4[0] - ch_11[1] * -s4[1]);
+          z22[1] = (ch_11[0] * -s4[1] + ch_11[1] * s4[0]);
+
+          // dlsch_stbc_sub(z21, z22)
+          z21[0] = z21[0] - z22[0];
+          z21[1] = z21[1] - z22[1];
+
+          // dlsch_stbc_mul(d, z21, 0, 0)
+          z22[0] = z21[0] * (d[0] / 10000) - z21[1] * (d[1] / 10000);
+          z22[1] = z21[0] * (d[1] / 10000) + z21[1] * (d[0] / 10000);
+
+          // z2 = dlsch_stbc_sub(rxF0 + 2, z22);
+          z2[0] = rxF0[2] - z22[0];
+          z2[1] = rxF0[3] - z22[1];
+
+          // z31 = dlsch_stbc_mul(ch_21, s3, 0, 0);
+          z31[0] = (ch_21[0] * s3[0] - ch_21[1] * s3[1]);
+          z31[1] = (ch_21[0] * s3[1] + ch_21[1] * s3[0]);
+
+          // z32 = dlsch_stbc_mul(ch_22, s4, 0, 0);
+          z32[0] = (ch_22[0] * s4[0] - ch_22[1] * s4[1]);
+          z32[1] = (ch_22[0] * s4[1] + ch_22[1] * s4[0]);
+
+          // dlsch_stbc_add(z31, z32)
+          z31[0] = z31[0] + z32[0];
+          z31[1] = z31[1] + z32[1];
+
+          // dlsch_stbc_mul(b, z31, 0, 0)
+          z32[0] = z31[0] * (b[0] / 10000) - z31[1] * (b[1] / 10000);
+          z32[1] = z31[0] * (b[1] / 10000) + z31[1] * (b[0] / 10000);      
+
+          // z3 = dlsch_stbc_sub(rxF1, z32);
+          z3[0] = rxF1[0] + z32[0];
+          z3[1] = rxF1[1] + z32[1];
+
+          // z41 = dlsch_stbc_mul(ch_22, s3, 0, 1);
+          z41[0] = (ch_22[0] * s3[0] - ch_22[1] * -s3[1]);
+          z41[1] = (ch_22[0] * -s3[1] + ch_22[1] * s3[0]);
+
+          // z42 = dlsch_stbc_mul(ch_21, s4, 0, 1);
+          z42[0] = (ch_21[0] * s4[0] - ch_21[1] * -s4[1]);
+          z42[1] = (ch_21[0] * -s4[1] + ch_21[1] * s4[0]);
+
+          // dlsch_stbc_sub(z41, z42)
+          z41[0] = z41[0] - z42[0];
+          z41[1] = z41[1] - z42[1];
+
+          // dlsch_stbc_mul(d, z41, 0, 0)
+          z42[0] = z41[0] * (d[0] / 10000) - z41[1] * (d[1] / 10000);
+          z42[1] = z41[0] * (d[1] / 10000) + z41[1] * (d[0] / 10000);    
+
+          // z4 = dlsch_stbc_sub(rxF1 + 2, z42);
+          z4[0] = rxF1[2] - z42[0];
+          z4[1] = rxF1[3] - z42[1];
+
+          // s1 = dlsch_stbc_add(dlsch_stbc_div(dlsch_stbc_add(dlsch_stbc_mul(ch_11, z1, 1, 0), dlsch_stbc_mul(ch_21, z3, 1, 0)), a), dlsch_stbc_div(dlsch_stbc_add(dlsch_stbc_mul(ch_12, z2, 0, 1), dlsch_stbc_mul(ch_22, z4, 0, 1)), c));
+          s1[0] = (ch_11[0] * z1[0] - (-ch_11[1]) * z1[1]);
+          s1[1] = (ch_11[0] * z1[1] + (-ch_11[1]) * z1[0]);
+
+          s1[0] += (ch_21[0] * z3[0] - (-ch_21[1]) * z3[1]);
+          s1[1] += (ch_21[0] * z3[1] + (-ch_21[1]) * z3[0]);
+
+          s1[0] += (ch_12[0] * z2[0] - ch_12[1] * -z2[1]);
+          s1[1] += (ch_12[0] * -z2[1] + ch_12[1] * z2[0]);
+
+          s1[0] += (ch_22[0] * z4[0] - ch_22[1] * -z4[1]);
+          s1[1] += (ch_22[0] * -z4[1] + ch_22[1] * z4[0]);
+
+          s1[0] = (s1[0] * 10000 / (a[0] * ch_pwr));
+          s1[1] = (s1[1] * 10000 / (c[0] * ch_pwr));
+
+          // s2 = dlsch_stbc_sub(dlsch_stbc_div(dlsch_stbc_add(dlsch_stbc_mul(ch_12, z1, 1, 0), dlsch_stbc_mul(ch_22, z3, 1, 0)), a), dlsch_stbc_div(dlsch_stbc_add(dlsch_stbc_mul(ch_11, z2, 0, 1), dlsch_stbc_mul(ch_21, z4, 0, 1)), c));
+          s2[0] = (ch_12[0] * z1[0] - (-ch_12[1]) * z1[1]);
+          s2[1] = (ch_12[0] * z1[1] + (-ch_12[1]) * z1[0]);
+
+          s2[0] += (ch_22[0] * z3[0] - (-ch_22[1]) * z3[1]);
+          s2[1] += (ch_22[0] * z3[1] + (-ch_22[1]) * z3[0]);
+
+          s2[0] -= (ch_11[0] * z2[0] - ch_11[1] * -z2[1]);
+          s2[1] -= (ch_11[0] * -z2[1] + ch_11[1] * z2[0]);
+
+          s2[0] -= (ch_21[0] * z4[0] - ch_21[1] * -z4[1]);
+          s2[1] -= (ch_21[0] * -z4[1] + ch_21[1] * z4[0]);
+
+          s2[0] = (s2[0] * 10000 / (a[0] * ch_pwr));
+          s2[1] = (s2[1] * 10000 / (c[0] * ch_pwr));
+
 
           // z11 = dlsch_stbc_mul(ch_11, s3, 0, 0);
           z11_tmp[0] = (ch_11[0] * s3[0] - ch_11[1] * s3[1]);
           z11_tmp[1] = (ch_11[0] * s3[1] + ch_11[1] * s3[0]);
-
 
           // z11 = dlsch_stbc_mul(z11, b, 0, 0);
           z11[0] = (z11_tmp[0] * b[0] / 10000) - (z11_tmp[1] * b[1] / 10000);
@@ -4676,67 +4793,54 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
           z2[0] = z22[0] - z21[0];
           z2[1] = z22[1] - z21[1];
 
-          // dlsch_stbc_mul(ch_21, b, 0, 0)
-          z31_tmp[0] = (ch_21[0] * (b[0] / 10000) - ch_21[1] * (b[1] / 10000));
-          z31_tmp[1] = (ch_21[0] * (b[1] / 10000) + ch_21[1] * (b[0] / 10000));
+          // dlsch_stbc_mul(ch_21, s3, 0, 0)
+          z31_tmp[0] = (ch_21[0] * s3[0] - ch_21[1] * s3[1]);
+          z31_tmp[1] = (ch_21[0] * s3[1] + ch_21[1] * s3[0]);
 
-          // z31 = dlsch_stbc_mul(z31_tmp, s3, 0, 0);
-          z31[0] = z31_tmp[0] * s3[0] - z31_tmp[1] * s3[1];
-          z31[1] = z31_tmp[0] * s3[1] + z31_tmp[1] * s3[0];
+          // z31 = dlsch_stbc_mul(z31_tmp, b, 0, 0);
+          z31[0] = z31_tmp[0] * b[0] / 10000 - z31_tmp[1] * b[1] / 10000;
+          z31[1] = z31_tmp[0] * b[1] / 10000 + z31_tmp[1] * b[0] / 10000;
 
-          // dlsch_stbc_mul(ch_22, b, 0, 0
-          z32_tmp[0] = (ch_22[0] * (b[0] / 10000) - ch_22[1] * (b[1] / 10000));
-          z32_tmp[1] = (ch_22[0] * (b[1] / 10000) + ch_22[1] * (b[0] / 10000));
+          // dlsch_stbc_mul(ch_22, s4, 0, 0
+          z32_tmp[0] = (ch_22[0] * s4[0] - ch_22[1] * s4[1]);
+          z32_tmp[1] = (ch_22[0] * s4[1] + ch_22[1] * s4[0]);
 
-          // z32 = dlsch_stbc_mul(z32_tmp),s4, 0, 0);
-          z32[0] = z32_tmp[0] * s4[0] - z32_tmp[1] * s4[1];
-          z32[1] = z32_tmp[0] * s4[1] + z32_tmp[1] * s4[0];
+          // z32 = dlsch_stbc_mul(z32_tmp),b, 0, 0);
+          z32[0] = z32_tmp[0] * b[0] - z32_tmp[1] * b[1];
+          z32[1] = z32_tmp[0] * b[1] + z32_tmp[1] * b[0];
 
           // z3 = dlsch_stbc_add(z31, z32);
           z3[0] = z31[0] + z32[0];
           z3[1] = z31[1] + z32[1];
           
-          // dlsch_stbc_mul(ch_22, d, 0, 0)
-          z41_tmp[0] = (ch_22[0] * (d[0] / 10000) - ch_22[1] * (d[1] / 10000));
-          z41_tmp[1] = (ch_22[0] * (d[1] / 10000) + ch_22[1] * (d[0] / 10000));
+          // dlsch_stbc_mul(ch_22, s4, 0, 1)
+          z41_tmp[0] = (ch_22[0] * s4[0] - ch_22[1] * -s4[1]);
+          z41_tmp[1] = (ch_22[0] * -s4[1] + ch_22[1] * s4[0]);
 
-          // z41 = dlsch_stbc_mul(z41_tmp, s4, 0, 1);
-          z41[0] = z41_tmp[0] * s4[0] - z41_tmp[1] * -s4[1];
-          z41[1] = z41_tmp[0] *- s4[1] + z41_tmp[1] * s4[0];
+          // z41 = dlsch_stbc_mul(z41_tmp, d, 0, 0);
+          z41[0] = z41_tmp[0] * d[0] - z41_tmp[1] * d[1];
+          z41[1] = z41_tmp[0] * d[1] + z41_tmp[1] * d[0];
           
-          // dlsch_stbc_mul(ch_21, d, 0, 0)
-          z42_tmp[0] = (ch_21[0] * (d[0] / 10000) - ch_21[1] * (d[1] / 10000));
-          z42_tmp[1] = (ch_21[0] * (d[1] / 10000) + ch_21[1] * (d[0] / 10000));
+          // dlsch_stbc_mul(ch_21, s3, 0, 1)
+          z42_tmp[0] = (ch_21[0] * s3[0] - ch_21[1] * -s3[1]);
+          z42_tmp[1] = (ch_21[0] * -s3[1] + ch_21[1] * s3[0]);
 
-          // z42 = dlsch_stbc_mul(z42_tmp, s3, 0, 1);
-          z42[0] = z42_tmp[0] * s3[0] - z42_tmp[1] * -s3[1];
-          z42[1] = z42_tmp[0] * -s3[1] + z42_tmp[1] * s3[0];
+          // z42 = dlsch_stbc_mul(z42_tmp, d, 0, 0);
+          z42[0] = z42_tmp[0] * d[0] - z42_tmp[1] * d[1];
+          z42[1] = z42_tmp[0] * d[1] + z42_tmp[1] * d[0];
 
           // z4 = dlsch_stbc_sub(z42, z41);
           z4[0] = z42[0] - z41[0];
           z4[1] = z42[1] - z41[1];
 
-          LOG_UI(PHY, "z1: %d - %d | z2: %d - %d\n", z1[0], z1[1], z2[0], z2[1]);
-          LOG_UI(PHY, "z3: %d - %d | z4: %d - %d\n", z3[0], z3[1], z4[0], z4[1]);
-          LOG_UI(PHY, "rxFO: %d - %d | %d - %d\n", rxF0[0], rxF0[1], rxF0[2], rxF0[3]);
-          LOG_UI(PHY, "rxF1: %d - %d | %d - %d\n", rxF1[0], rxF1[1], rxF1[2], rxF1[3]);
-
           MSE[iter1][iter2] += (uint64_t)((rxF0[0] - z1[0]) >> 2) * (uint64_t)((rxF0[0] - z1[0]) >> 2);
-          LOG_UI(PHY, "MSE: %d\n", MSE[iter1][iter2]);
           MSE[iter1][iter2] += (uint64_t)((rxF0[1] - z1[1]) >> 2) * (uint64_t)((rxF0[1] - z1[1]) >> 2);
-          LOG_UI(PHY, "MSE: %d\n", MSE[iter1][iter2]);
           MSE[iter1][iter2] += (uint64_t)((rxF0[2] - z2[0]) >> 2) * (uint64_t)((rxF0[2] - z2[0]) >> 2);
-          LOG_UI(PHY, "MSE: %d\n", MSE[iter1][iter2]);
           MSE[iter1][iter2] += (uint64_t)((rxF0[3] - z2[1]) >> 2) * (uint64_t)((rxF0[3] - z2[1]) >> 2);
-          LOG_UI(PHY, "MSE: %d\n", MSE[iter1][iter2]);
           MSE[iter1][iter2] += (uint64_t)((rxF1[0] - z3[0]) >> 2) * (uint64_t)((rxF1[0] - z3[0]) >> 2);
-          LOG_UI(PHY, "MSE: %d\n", MSE[iter1][iter2]);
           MSE[iter1][iter2] += (uint64_t)((rxF1[1] - z3[1]) >> 2) * (uint64_t)((rxF1[1] - z3[1]) >> 2);
-          LOG_UI(PHY, "MSE: %d\n", MSE[iter1][iter2]);
           MSE[iter1][iter2] += (uint64_t)((rxF1[2] - z4[0]) >> 2) * (uint64_t)((rxF1[2] - z4[0]) >> 2);
-          LOG_UI(PHY, "MSE: %d\n", MSE[iter1][iter2]);
           MSE[iter1][iter2] += (uint64_t)((rxF1[3] - z4[1]) >> 2) * (uint64_t)((rxF1[3] - z4[1]) >> 1);        
-          LOG_UI(PHY, "MSE: %d\n", MSE[iter1][iter2]);
         }
       }
 
@@ -4759,12 +4863,6 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
       qam_pt[1] = y;
 
       LOG_UI(PHY, "min QAM x: %d - y: %d\n", x, y);
-
-      // ch_pwr = ch_11[jj] * ch_11[jj] + ch_11[jj + 1] * ch_11[jj + 1];
-      // ch_pwr += ch_11[jj + 2] * ch_11[jj + 2] + ch_11[jj + 3] * ch_11[jj + 3];
-      // ch_pwr += ch_21[jj + 2] * ch_21[jj + 2] + ch_21[jj + 3] * ch_21[jj + 3];
-      // ch_pwr += ch_22[jj + 2] * ch_22[jj + 2] + ch_22[jj + 3] * ch_22[jj + 3];
-      ch_pwr = 4;
       // Rest two symbols have a closed form solutions given that first two symbols are known
       
       s3[0] = QAM_TABLE[qam_pt[0] * 2];
