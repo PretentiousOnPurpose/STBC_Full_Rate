@@ -9,7 +9,7 @@ d = -1i * b;
 
 M = 4; % QAM Alphabet
 cc = 0; % Channel Coding on/off
-chan = 1; % Add Fading Channel
+chan = 0; % Add Fading Channel
 n = 0; % Add AWGN
 QAM_CONST = round((sqrt(2) * qammod((0:M-1)', M, 'gray', 'UnitAveragePower', 1)) * 23170); % QAM Constellation
 
@@ -20,7 +20,8 @@ numErr = zeros(length(SNR_Range), 1);
 for iter_trail = 1: numTrails
     for iter_snr = 1: length(SNR_Range)
         numBits = 8;
-        data = randi([0, 1], numBits, 1);
+%         data = randi([0, 1], numBits, 1);
+        data = [0;0;0;1;1;0;1;1];
         if (cc == 1)
             encData = lteConvolutionalEncode(data);
             encData = lteRateMatchConvolutional(encData, 2 * numBits);
@@ -34,7 +35,8 @@ for iter_trail = 1: numTrails
         if (chan == 1)
             H = 1/sqrt(2) * (randn(2, 2) + 1i * randn(2, 2));
         else
-            H = ones(2, 2);    
+%             H = ones(2, 2);    
+            H = [[1;2], [2;1]];
         end
         H_hat = H; % + 0.05 * (randn(size(H)) + 1i * size(H));
 
@@ -79,19 +81,24 @@ for iter_trail = 1: numTrails
                     z3 = r3 - b * (H_hat(2, 1) * s3 + H_hat(2, 2) * s4);
                     z4 = r4 - d * (H_hat(2, 2) * conj(s3) - H_hat(2, 1) * conj(s4));
 
-                    s1 = (conj(H_hat(1, 1)) * z1 + conj(H_hat(2, 1)) * z3) / a + (H_hat(1, 2) * conj(z2) + H_hat(2, 2) * conj(z4)) / conj(c);
-                    s2 = (conj(H_hat(1, 2)) * z1 + conj(H_hat(2, 2)) * z3) / a - (H_hat(1, 1) * conj(z2) + H_hat(2, 1) * conj(z4)) / conj(c);
+                    s1 = (conj(H_hat(1, 1)) * z1 + conj(H_hat(2, 1)) * z3) / a + (H_hat(1, 2) * conj(z2) + H_hat(2, 2) * conj(z4)) / conj(a);
+                    s2 = (conj(H_hat(1, 2)) * z1 + conj(H_hat(2, 2)) * z3) / a - (H_hat(1, 1) * conj(z2) + H_hat(2, 1) * conj(z4)) / conj(a);
 
                     s1 = s1 / sum(sum(abs(H_hat) .^ 2));
                     s2 = s2 / sum(sum(abs(H_hat) .^ 2));
                     
-                    D(iter_const1, iter_const2) = abs(r1 - (H_hat(1, 1) * (a * s1 + b * s3) + H_hat(1, 2) * (a * s2 + b * s4))) ^ 2;
+                    z1 = (H_hat(1, 1) * (a * s1 + b * s3) + H_hat(1, 2) * (a * s2 + b * s4));
+                    z2 = (-H_hat(1, 1) * (d * conj(s4) + c * conj(s2)) + H_hat(1, 2) * (d * conj(s3) + c * conj(s1)));
+                    z3 = (H_hat(2, 1) * (a * s1 + b * s3) + H_hat(2, 2) * (a * s2 + b * s4));
+                    z4 = (-H_hat(2, 1) * (c * conj(s2) + d * conj(s4)) + H_hat(2, 2) * (c * conj(s1) + d * conj(s3)));
+                    
+                    D(iter_const1, iter_const2) = abs(r1 - z1) ^ 2;
                     D(iter_const1, iter_const2) = D(iter_const1, iter_const2) + ...
-                        abs(r2 - (-H_hat(1, 1) * (d * conj(s4) + c * conj(s2)) + H_hat(1, 2) * (d * conj(s3) + c * conj(s1)))) ^ 2;
+                        abs(r2 - z2) ^ 2;
                     D(iter_const1, iter_const2) = D(iter_const1, iter_const2) + ...
-                        abs(r3 - (H_hat(2, 1) * (a * s1 + b * s3) + H_hat(2, 2) * (a * s2 + b * s4))) ^ 2;
+                        abs(r3 - z3) ^ 2;
                     D(iter_const1, iter_const2) = D(iter_const1, iter_const2) + ...
-                        abs(r4 - (-H_hat(2, 1) * (c * conj(s2) + d * conj(s4)) + H_hat(2, 2) * (c * conj(s1) + d * conj(s3)))) ^ 2;
+                        abs(r4 - z4) ^ 2;
                 end
             end
 
