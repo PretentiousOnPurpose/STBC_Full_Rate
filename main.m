@@ -36,7 +36,7 @@ for iter_trail = 1: numTrails
             H = 1/sqrt(2) * (randn(2, 2) + 1i * randn(2, 2));
         else
 %             H = ones(2, 2);    
-            H = [[1;2], [2;1]];
+            H = [[21;45], [78;10]];
         end
         H_hat = H; % + 0.05 * (randn(size(H)) + 1i * size(H));
 
