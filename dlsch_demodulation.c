@@ -4535,7 +4535,7 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
   // int32_t *ch_11,*ch_12,*ch_21,*ch_22;
   // int32_t *z1, *z11, *z11_tmp, *z12, *z12_tmp, *z2, *z21, *z21_tmp, *z22, *z22_tmp, *z3, *z31, *z31_tmp, *z32, *z32_tmp, *z4, *z41, *z41_tmp, *z42, *z42_tmp;
   uint64_t ** MSE;
-  uint32_t ch_pwr;
+  uint32_t ch_pwr = 0;
   int iter1, iter2,x=0,y=0;
   uint64_t min;
   unsigned char rb,re;
@@ -4548,7 +4548,8 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
 
   rxF0     = (int32_t *)&rxdataF_ext[0][jj];
   rxF1     = (int32_t *)&rxdataF_ext[1][jj];
-  
+
+  // For 2-bit truth Table  
   rxF0[0] = -54440;
   rxF0[1] = 35160;
   rxF0[2] = 18770;
@@ -4558,6 +4559,14 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
   rxF1[2] = 21670;
   rxF1[3] = -100690;
 
+  // rxF0[0] = -1438200;
+  // rxF0[1] = 928700;
+  // rxF0[2] = 584600;
+  // rxF0[3] = -2716100;
+  // rxF1[0] = -1794500;
+  // rxF1[1] = 1158800;
+  // rxF1[2] = 42150;
+  // rxF1[3] = -1958300;
 
   Qm = 2;
   
@@ -4608,11 +4617,17 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
   b[0] = -2909; b[1] = 6444;
   d[0] = b[1]; d[1] = -b[0];
 
-  // ch_pwr = ch_11[jj] * ch_11[jj] + ch_11[jj + 1] * ch_11[jj + 1];
-  // ch_pwr += ch_11[jj + 2] * ch_11[jj + 2] + ch_11[jj + 3] * ch_11[jj + 3];
-  // ch_pwr += ch_21[jj + 2] * ch_21[jj + 2] + ch_21[jj + 3] * ch_21[jj + 3];
-  // ch_pwr += ch_22[jj + 2] * ch_22[jj + 2] + ch_22[jj + 3] * ch_22[jj + 3];
-  ch_pwr = 10;
+  LOG_UI(PHY, "Channel Power: %d\n", ch_pwr);
+  ch_pwr = ch_11[0] * ch_11[0] + ch_11[0 + 1] * ch_11[0 + 1];
+  LOG_UI(PHY, "Channel Power: %d\n", ch_pwr);
+  ch_pwr += ch_12[0] * ch_12[0] + ch_12[0 + 1] * ch_12[0 + 1];
+  LOG_UI(PHY, "Channel Power: %d\n", ch_pwr);
+  ch_pwr += ch_21[0] * ch_21[0] + ch_21[0 + 1] * ch_21[0 + 1];
+  LOG_UI(PHY, "Channel Power: %d\n", ch_pwr);
+  ch_pwr += ch_22[0] * ch_22[0] + ch_22[0 + 1] * ch_22[0 + 1];
+  LOG_UI(PHY, "Channel Power: %d\n", ch_pwr);
+
+  // ch_pwr = 10;
 
   for (rb=0; rb<nb_rb; rb++) {
     for (re=0; re<((pilots==0)?12:8); re+=2) { 
@@ -4824,19 +4839,21 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
 
           //  z11 = z11 * ch_11
           z22[0] = ch_12[0] * z22[0] - ch_12[1] * z22[1];
-          z22[1] = ch_12[0] * z22[1] - ch_12[1] * z22[0];
+          z22[1] = ch_12[0] * z22[1] + ch_12[1] * z22[0];
 
 
           z21[0] = (c[0] * s2[0] - c[1] * -s2[1]) / 10000;
           z21[1] = (c[0] * -s2[1] + c[1] * s2[0]) / 10000;
-80;
+
+          z21_tmp[0] = (d[0] * s4[0] - d[1] * -s4[1]) / 10000;
+          z21_tmp[1] = (d[0] * -s4[1] + d[1] * s4[0]) / 10000;
 
           z21[0] = (z21[0] + z21_tmp[0]);
           z21[1] = (z21[1] + z21_tmp[1]);
 
           //  z11 = z11 * ch_11
           z21[0] = ch_11[0] * z21[0] - ch_11[1] * z21[1];
-          z21[1] = ch_11[0] * z21[1] - ch_11[1] * z21[0];
+          z21[1] = ch_11[0] * z21[1] + ch_11[1] * z21[0];
 
           z2[0] = z22[0] - z21[0];
           z2[1] = z22[1] - z21[1];
@@ -4910,10 +4927,12 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
           // LOG_UI(PHY, "s2: %d - %d\n", s2[0], s2[1]);
           // LOG_UI(PHY, "s3: %d - %d\n", s3[0], s3[1]);
           // LOG_UI(PHY, "s4: %d - %d\n", s4[0], s4[1]);
-          // LOG_UI(PHY, "Z1: %d - %d\n", z1[0], z1[1]);
-          // LOG_UI(PHY, "Z2: %d - %d\n", z2[0], z2[1]);
-          // LOG_UI(PHY, "Z3: %d - %d\n", z3[0], z3[1]);
-          // LOG_UI(PHY, "Z4: %d - %d\n", z4[0], z4[1]);
+          if (iter1 == 2 && iter2 == 3) {
+            LOG_UI(PHY, "Z1: %d - %d\n", z1[0], z1[1]);
+            LOG_UI(PHY, "Z2: %d - %d\n", z2[0], z2[1]);
+            LOG_UI(PHY, "Z3: %d - %d\n", z3[0], z3[1]);
+            LOG_UI(PHY, "Z4: %d - %d\n", z4[0], z4[1]);
+          }
 
           MSE[iter1][iter2] += (uint64_t)((rxF0[0] - z1[0]) >> 2) * (uint64_t)((rxF0[0] - z1[0]) >> 2);
           MSE[iter1][iter2] += (uint64_t)((rxF0[1] - z1[1]) >> 2) * (uint64_t)((rxF0[1] - z1[1]) >> 2);
@@ -4941,8 +4960,8 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
         LOG_UI(PHY, "\n");
       }
 
-      qam_pt[0] = 2;
-      qam_pt[1] = 3;
+      qam_pt[0] = x;
+      qam_pt[1] = y;
 
       LOG_UI(PHY, "min QAM x: %d - y: %d\n", x, y);
       // Rest two symbols have a closed form solutions given that first two symbols are known
@@ -7152,5 +7171,4 @@ void dump_dlsch2(PHY_VARS_UE *ue,uint8_t eNB_id,uint8_t subframe,unsigned int *c
   LOG_M(fname,vname,ue->pdsch_vars[ue->current_thread_id[subframe]][eNB_id]->dl_ch_magb0[0],
         12*(ue->frame_parms.N_RB_DL)*NSYMB,1,1);
 }
-
 
