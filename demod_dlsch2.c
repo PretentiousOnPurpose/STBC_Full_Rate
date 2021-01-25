@@ -39,6 +39,8 @@
 #include<stdio.h>
 #include<math.h>
 #include <stdlib.h>
+#include <stdint.h>
+#include <inttypes.h>
 #include <string.h>
 #include <linux/version.h>
 #if RHEL_RELEASE_CODE >= 1796
@@ -4535,7 +4537,7 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
   // int32_t *ch_11,*ch_12,*ch_21,*ch_22;
   // int32_t *z1, *z11, *z11_tmp, *z12, *z12_tmp, *z2, *z21, *z21_tmp, *z22, *z22_tmp, *z3, *z31, *z31_tmp, *z32, *z32_tmp, *z4, *z41, *z41_tmp, *z42, *z42_tmp;
   uint64_t ** MSE;
-  uint32_t chPwr = 0;
+  int32_t chPwr = 0;
   int iter1, iter2,x=0,y=0;
   uint64_t min;
   unsigned char rb,re;
@@ -4638,7 +4640,8 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
   chPwr += ch_22[0] * ch_22[0] + ch_22[1] * ch_22[1];
   LOG_UI(PHY, "Channel Power: %d\n", chPwr);
 
-  chPwr = chPwr * 100 / (chAvg * chAvg);
+  chPwr = chPwr * 1000;
+  chPwr = chPwr / (chAvg * chAvg);
 
   for (rb=0; rb<nb_rb; rb++) {
     for (re=0; re<((pilots==0)?12:8); re+=2) { 
@@ -4780,8 +4783,8 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
           s1[1] = s1[1] / a[0];
           LOG_UI(PHY, "S1: %d %d\n", s1[0], s1[1]);
 
-          s1[0] = (s1[0]) * 100;
-          s1[1] = (s1[1]) * 100;
+          s1[0] = (s1[0]) * 1000;
+          s1[1] = (s1[1]) * 1000;
 
           s1[0] = s1[0] / chPwr;
           s1[1] = s1[1] / chPwr;
@@ -4810,8 +4813,8 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
 
           LOG_UI(PHY, "S2: %d %d\n", s2[0], s2[1]);
 
-          s2[0] = (s2[0]) * 100;
-          s2[1] = (s2[1]) * 100;
+          s2[0] = (s2[0]) * 1000;
+          s2[1] = (s2[1]) * 1000;
           LOG_UI(PHY, "S2: %d %d\n", s2[0], s2[1]);
 
           s2[0] = s2[0] / chPwr;
