@@ -4561,24 +4561,24 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
   // rxF1[2] = 21670;
   // rxF1[3] = -100690;
 
-  rxF0[0] = -1438200;
-  rxF0[1] = 928700;
-  rxF0[2] = 584600;
-  rxF0[3] = -2716100;
-  rxF1[0] = -1794500;
-  rxF1[1] = 1158800;
-  rxF1[2] = 421500;
-  rxF1[3] = -1958300;
+  rxF0[0] = -2155900;
+  rxF0[1] = -182800;
+  rxF0[2] = 2777500;
+  rxF0[3] = -2244100;
+  rxF1[0] = -3958500;
+  rxF1[1] = -2084400;
+  rxF1[2] = 4645700;
+  rxF1[3] = -1203400;
 
   Qm = 2;
   
   // rxF0[0] = 
-  int32_t ch_11[2] = {21, 0}; // (int32_t *)&dl_ch_ext[0][jj];
-  int32_t ch_12[2] = {78, 0}; // (int32_t *)&dl_ch_ext[1][jj];
-  int32_t ch_21[2] = {45, 0}; // (int32_t *)&dl_ch_ext[2][jj];
-  int32_t ch_22[2] = {10, 0}; // (int32_t *)&dl_ch_ext[3][jj];
+  int32_t ch_11[2] = {21, 15}; // (int32_t *)&dl_ch_ext[0][jj];
+  int32_t ch_12[2] = {78, 66}; // (int32_t *)&dl_ch_ext[1][jj];
+  int32_t ch_21[2] = {45, 74}; // (int32_t *)&dl_ch_ext[2][jj];
+  int32_t ch_22[2] = {16, 56}; // (int32_t *)&dl_ch_ext[3][jj];
 
-  int32_t chAvg = 78; // max(ch11, ch12, ch21, ch22)
+  int32_t chAvg = 102; // abs(max(ch11, ch12, ch21, ch22))
 
   rxF0[0] = rxF0[0] / chAvg; 
   rxF0[1] = rxF0[1] / chAvg; 
@@ -4668,22 +4668,27 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
           z11[0] = (ch_11[0] * s3[0] - ch_11[1] * s3[1]) / chAvg;
           z11[1] = (ch_11[0] * s3[1] + ch_11[1] * s3[0]) / chAvg;
 
+          // LOG_UI(PHY, "z11: %d %d\n", z11[0], z11[1]);
 
           // z12 = dlsch_stbc_mul(ch_12, s4, 0, 0);
           z12[0] = (ch_12[0] * s4[0] - ch_12[1] * s4[1]) / chAvg;
           z12[1] = (ch_12[0] * s4[1] + ch_12[1] * s4[0]) / chAvg;
+          // LOG_UI(PHY, "z12: %d %d\n", z12[0], z12[1]);
 
           // dlsch_stbc_add(z11, z12)
           z1[0] = z11[0] + z12[0];
           z1[1] = z11[1] + z12[1];
+          // LOG_UI(PHY, "z1: %d %d\n", z1[0], z1[1]);
 
           //  dlsch_stbc_mul(b, z1, 0, 0)
           z12[0] = ((z1[0] * b[0]) - (z1[1] * b[1])) / 10000;
           z12[1] = ((z1[0] * b[1]) + (z1[1] * b[0])) / 10000;
+          // LOG_UI(PHY, "z12: %d %d\n", z12[0], z12[1]);
 
           // z1 = dlsch_stbc_sub(rxF0, z12);
           z1[0] = rxF0[0] - z12[0];
           z1[1] = rxF0[1] - z12[1];
+          // LOG_UI(PHY, "z1: %d %d\n", z1[0], z1[1]);
           // exit(0);
           // z21 = dlsch_stbc_mul(ch_12, s3, 0, 1);
           z21[0] = (ch_12[0] * s3[0] - ch_12[1] * -s3[1]) / chAvg;
@@ -4736,7 +4741,6 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
           // z4 = dlsch_stbc_sub(rxF1 + 2, z42);
           z4[0] = rxF1[2] - z42[0];
           z4[1] = rxF1[3] - z42[1];
-
           
           // s1 = dlsch_stbc_add(dlsch_stbc_div(dlsch_stbc_add(dlsch_stbc_mul(ch_11, z1, 1, 0), dlsch_stbc_mul(ch_21, z3, 1, 0)), a), dlsch_stbc_div(dlsch_stbc_add(dlsch_stbc_mul(ch_12, z2, 0, 1), dlsch_stbc_mul(ch_22, z4, 0, 1)), c));
           s1[0] = (ch_11[0] * z1[0] - (-ch_11[1]) * z1[1]) / chAvg;
@@ -4792,12 +4796,10 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
           s2[0] = s2[0] / chPwr;
           s2[1] = s2[1] / chPwr;
 
-          // s2[0] = (s2[0]) * chAvg;
-          // s2[1] = (s2[1]) * chAvg;
-
           // z11 = dlsch_stbc_mul(a, s1, 0, 0);
           z11[0] = (a[0] * s1[0] - a[1] * s1[1]) / 10000;
           z11[1] = (a[0] * s1[1] + a[1] * s1[0]) / 10000;
+
 
           // z11_tmp = b * s3
           z11_tmp[0] = (b[0] * s3[0] - b[1] * s3[1]) / 10000;
@@ -4807,8 +4809,8 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
           z11[1] = (z11[1] + z11_tmp[1]);
 
           //  z11 = z11 * ch_11
-          z11[0] = (ch_11[0] * z11[0] - ch_11[1] * z11[1]) / chAvg;
-          z11[1] = (ch_11[0] * z11[1] - ch_11[1] * z11[0]) / chAvg;
+          z11_tmp[0] = (ch_11[0] * z11[0] - ch_11[1] * z11[1]) / chAvg;
+          z11_tmp[1] = (ch_11[0] * z11[1] + ch_11[1] * z11[0]) / chAvg;
 
           // z11 = dlsch_stbc_mul(a, s1, 0, 0);
           z12[0] = (a[0] * s2[0] - a[1] * s2[1]) / 10000;
@@ -4822,45 +4824,12 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
           z12[1] = (z12[1] + z12_tmp[1]);
 
           //  z12 = z12 * ch_12
-          z12[0] = (ch_12[0] * z12[0] - ch_12[1] * z12[1]) / chAvg;
-          z12[1] = (ch_12[0] * z12[1] - ch_12[1] * z12[0]) / chAvg;
+          z12_tmp[0] = (ch_12[0] * z12[0] - ch_12[1] * z12[1]) / chAvg;
+          z12_tmp[1] = (ch_12[0] * z12[1] + ch_12[1] * z12[0]) / chAvg;
 
-          z1[0] = z11[0] + z12[0];
-          z1[1] = z11[1] + z12[1];
-
-          // z11 = dlsch_stbc_mul(a, s1, 0, 0);
-          z11[0] = (a[0] * s1[0] - a[1] * s1[1]) / 10000;
-          z11[1] = (a[0] * s1[1] + a[1] * s1[0]) / 10000;
-
-          // z11_tmp = b * s3
-          z11_tmp[0] = (b[0] * s3[0] - b[1] * s3[1]) / 10000;
-          z11_tmp[1] = (b[0] * s3[1] + b[1] * s3[0]) / 10000;
-
-          z11[0] = (z11[0] + z11_tmp[0]);
-          z11[1] = (z11[1] + z11_tmp[1]);
-
-          //  z11 = z11 * ch_11
-          z11[0] = (ch_11[0] * z11[0] - ch_11[1] * z11[1]) / chAvg;
-          z11[1] = (ch_11[0] * z11[1] - ch_11[1] * z11[0]) / chAvg;
-
-          // z11 = dlsch_stbc_mul(a, s1, 0, 0);
-          z12[0] = (a[0] * s2[0] - a[1] * s2[1]) / 10000;
-          z12[1] = (a[0] * s2[1] + a[1] * s2[0]) / 10000;
-
-          // z12_tmp = b * s3
-          z12_tmp[0] = (b[0] * s4[0] - b[1] * s4[1]) / 10000;
-          z12_tmp[1] = (b[0] * s4[1] + b[1] * s4[0]) / 10000;
-
-          z12[0] = (z12[0] + z12_tmp[0]);
-          z12[1] = (z12[1] + z12_tmp[1]);
-
-          //  z12 = z12 * ch_12
-          z12[0] = (ch_12[0] * z12[0] - ch_12[1] * z12[1]) / chAvg;
-          z12[1] = (ch_12[0] * z12[1] - ch_12[1] * z12[0]) / chAvg;
-
-          z1[0] = z11[0] + z12[0];
-          z1[1] = z11[1] + z12[1];
-          // exit(0);
+          z1[0] = z11_tmp[0] + z12_tmp[0];
+          z1[1] = z11_tmp[1] + z12_tmp[1];
+     
   // --------------------------------------------------------------------------------------------
           z22[0] = (c[0] * s1[0] - c[1] * -s1[1]) / 10000;
           z22[1] = (c[0] * -s1[1] + c[1] * s1[0]) / 10000;
@@ -4872,10 +4841,9 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
           z22[0] = (z22[0] + z22_tmp[0]);
           z22[1] = (z22[1] + z22_tmp[1]);
 
-
           //  z11 = z11 * ch_11
-          z22[0] = (ch_12[0] * z22[0] - ch_12[1] * z22[1]) / chAvg;
-          z22[1] = (ch_12[0] * z22[1] + ch_12[1] * z22[0]) / chAvg;
+          z22_tmp[0] = (ch_12[0] * z22[0] - ch_12[1] * z22[1]) / chAvg;
+          z22_tmp[1] = (ch_12[0] * z22[1] + ch_12[1] * z22[0]) / chAvg;
 
 
           z21[0] = (c[0] * s2[0] - c[1] * -s2[1]) / 10000;
@@ -4888,11 +4856,11 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
           z21[1] = (z21[1] + z21_tmp[1]);
 
           //  z11 = z11 * ch_11
-          z21[0] = (ch_11[0] * z21[0] - ch_11[1] * z21[1]) / chAvg;
-          z21[1] = (ch_11[0] * z21[1] + ch_11[1] * z21[0]) / chAvg;
+          z21_tmp[0] = (ch_11[0] * z21[0] - ch_11[1] * z21[1]) / chAvg;
+          z21_tmp[1] = (ch_11[0] * z21[1] + ch_11[1] * z21[0]) / chAvg;
 
-          z2[0] = z22[0] - z21[0];
-          z2[1] = z22[1] - z21[1];
+          z2[0] = z22_tmp[0] - z21_tmp[0];
+          z2[1] = z22_tmp[1] - z21_tmp[1];
 
 // --------------------------------------------------------------------
           z31[0] = (a[0] * s1[0] - a[1] * s1[1]) / 10000;
@@ -4906,8 +4874,8 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
           z31[1] = (z31[1] + z31_tmp[1]);
 
           //  z31 = z31 * ch_11
-          z31[0] = (ch_21[0] * z31[0] - ch_21[1] * z31[1]) / chAvg;
-          z31[1] = (ch_21[0] * z31[1] - ch_21[1] * z31[0]) / chAvg;
+          z31_tmp[0] = (ch_21[0] * z31[0] - ch_21[1] * z31[1]) / chAvg;
+          z31_tmp[1] = (ch_21[0] * z31[1] + ch_21[1] * z31[0]) / chAvg;
 
           // z31 = dlsch_stbc_mul(a, s1, 0, 0);
           z32[0] = (a[0] * s2[0] - a[1] * s2[1]) / 10000;
@@ -4921,11 +4889,11 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
           z32[1] = (z32[1] + z32_tmp[1]);
 
           //  z32 = z32 * ch_12
-          z32[0] = (ch_22[0] * z32[0] - ch_22[1] * z32[1]) / chAvg;
-          z32[1] = (ch_22[0] * z32[1] - ch_22[1] * z32[0]) / chAvg;
+          z32_tmp[0] = (ch_22[0] * z32[0] - ch_22[1] * z32[1]) / chAvg;
+          z32_tmp[1] = (ch_22[0] * z32[1] + ch_22[1] * z32[0]) / chAvg;
 
-          z3[0] = z31[0] + z32[0];
-          z3[1] = z31[1] + z32[1];
+          z3[0] = z31_tmp[0] + z32_tmp[0];
+          z3[1] = z31_tmp[1] + z32_tmp[1];
 
   // --------------------------------------------------------------------------------------------
           z42[0] = (c[0] * s1[0] - c[1] * -s1[1]) / 10000;
@@ -4939,8 +4907,8 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
           z42[1] = (z42[1] + z42_tmp[1]);
 
           //  z11 = z11 * ch_11
-          z42[0] = (ch_22[0] * z42[0] - ch_22[1] * z42[1]) / chAvg;
-          z42[1] = (ch_22[0] * z42[1] - ch_22[1] * z42[0]) / chAvg;
+          z42_tmp[0] = (ch_22[0] * z42[0] - ch_22[1] * z42[1]) / chAvg;
+          z42_tmp[1] = (ch_22[0] * z42[1] + ch_22[1] * z42[0]) / chAvg;
 
           z41[0] = (c[0] * s2[0] - c[1] * -s2[1]) / 10000;
           z41[1] = (c[0] * -s2[1] + c[1] * s2[0]) / 10000;
@@ -4953,11 +4921,18 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
           z41[1] = (z41[1] + z41_tmp[1]);
 
           //  z11 = z11 * ch_11
-          z41[0] = (ch_21[0] * z41[0] - ch_21[1] * z41[1]) / chAvg;
-          z41[1] = (ch_21[0] * z41[1] - ch_21[1] * z41[0]) / chAvg;
+          z41_tmp[0] = (ch_21[0] * z41[0] - ch_21[1] * z41[1]) / chAvg;
+          z41_tmp[1] = (ch_21[0] * z41[1] + ch_21[1] * z41[0]) / chAvg;
 
-          z4[0] = z42[0] - z41[0];
-          z4[1] = z42[1] - z41[1];
+          z4[0] = z42_tmp[0] - z41_tmp[0];
+          z4[1] = z42_tmp[1] - z41_tmp[1];
+
+          LOG_UI(PHY, "z1: %d %d\n", z1[0], z1[1]);
+          LOG_UI(PHY, "z2: %d %d\n", z2[0], z2[1]);
+          LOG_UI(PHY, "z3: %d %d\n", z3[0], z3[1]);
+          LOG_UI(PHY, "z4: %d %d\n", z4[0], z4[1]);
+          LOG_UI(PHY, "---------------------------\n");
+
 
           MSE[iter1][iter2] += (uint64_t)((rxF0[0] - z1[0]) >> (2)) * (uint64_t)((rxF0[0] - z1[0]) >> (2));
           MSE[iter1][iter2] += (uint64_t)((rxF0[1] - z1[1]) >> (2)) * (uint64_t)((rxF0[1] - z1[1]) >> (2));
@@ -4985,8 +4960,8 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
         LOG_UI(PHY, "\n");
       }
 
-      qam_pt[0] = x;
-      qam_pt[1] = y;
+      qam_pt[0] = 2;
+      qam_pt[1] = 3;
 
       LOG_UI(PHY, "min QAM x: %d - y: %d\n", x, y);
       // Rest two symbols have a closed form solutions given that first two symbols are known
