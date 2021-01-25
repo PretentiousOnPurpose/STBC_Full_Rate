@@ -53,6 +53,10 @@ for iter_trail = 1: numTrails
         %% Receiver
         Y = H * txSignal; 
         rxSignal = Y .* (1); %
+        chAvg = 78;
+        chPwr = sum(sum(abs(H_hat .^ 2))) / (chAvg ^ 2);
+        rxSignal = rxSignal ./ chAvg;
+        H_hat = H_hat ./ chAvg;
         if (n == 1)
             rxSignal = rxSignal + 1/(sqrt(2 * (10 ^ (SNR_Range(iter_snr, 1)/10)))) * (randn(size(Y)) + 1i * randn(size(Y)));
         end
@@ -84,9 +88,12 @@ for iter_trail = 1: numTrails
                     s1 = (conj(H_hat(1, 1)) * z1 + conj(H_hat(2, 1)) * z3) / a + (H_hat(1, 2) * conj(z2) + H_hat(2, 2) * conj(z4)) / conj(a);
                     s2 = (conj(H_hat(1, 2)) * z1 + conj(H_hat(2, 2)) * z3) / a - (H_hat(1, 1) * conj(z2) + H_hat(2, 1) * conj(z4)) / conj(a);
 
-                    s1 = s1 / sum(sum(abs(H_hat) .^ 2));
-                    s2 = s2 / sum(sum(abs(H_hat) .^ 2));
-                    
+%                     s1 = s1 / sum(sum(abs(H_hat) .^ 2));
+%                     s2 = s2 / sum(sum(abs(H_hat) .^ 2));
+
+                    s1 = s1 / chPwr;
+                    s2 = s2 / chPwr;
+    
                     z1 = (H_hat(1, 1) * (a * s1 + b * s3) + H_hat(1, 2) * (a * s2 + b * s4));
                     z2 = (-H_hat(1, 1) * (d * conj(s4) + c * conj(s2)) + H_hat(1, 2) * (d * conj(s3) + c * conj(s1)));
                     z3 = (H_hat(2, 1) * (a * s1 + b * s3) + H_hat(2, 2) * (a * s2 + b * s4));
