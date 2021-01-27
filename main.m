@@ -7,21 +7,29 @@ c = a;
 b = ((1-sqrt(7)) + 1i * (1 + sqrt(7))) / (4 * sqrt(2));
 d = -1i * b;
 
-M = 4; % QAM Alphabet
+M = 16; % QAM Alphabet
 cc = 0; % Channel Coding on/off
 chan = 0; % Add Fading Channel
 n = 0; % Add AWGN
 QAM_CONST = round((sqrt(2) * qammod((0:M-1)', M, 'gray', 'UnitAveragePower', 1)) * 23170); % QAM Constellation
 
+fileId = fopen('qam_16.txt', 'w');
+
+for iter_qam = 1:length(QAM_CONST)
+    fprintf(fileId, [num2str(real(QAM_CONST(iter_qam))), ',', num2str(imag(QAM_CONST(iter_qam))), ',']);
+end
+
+fclose(fileId);
+rng(100);
 %% Transmitter
 numTrails = 1;
 SNR_Range = 0;
 numErr = zeros(length(SNR_Range), 1);
 for iter_trail = 1: numTrails
     for iter_snr = 1: length(SNR_Range)
-        numBits = 8;
-%         data = randi([0, 1], numBits, 1);
-        data = [0;0;0;1;1;0;1;1];
+        numBits = round(log2(M) * 4);
+        data = randi([0, 1], numBits, 1);
+%         data = [0;0;0;0;1;0;1;0;0;1;0;1;1;1;0;0;];
         if (cc == 1)
             encData = lteConvolutionalEncode(data);
             encData = lteRateMatchConvolutional(encData, 2 * numBits);
@@ -36,7 +44,7 @@ for iter_trail = 1: numTrails
             H = 1/sqrt(2) * (randn(2, 2) + 1i * randn(2, 2));
         else
 %             H = ones(2, 2);    
-            H = [[21;45], [78;10]];
+            H = [[(21 + 1i * 97);(45+1i*74)], [(78 + 1i*66);(91 + 1i* 28)]];
         end
         H_hat = H; % + 0.05 * (randn(size(H)) + 1i * size(H));
 
@@ -53,7 +61,7 @@ for iter_trail = 1: numTrails
         %% Receiver
         Y = H * txSignal; 
         rxSignal = Y .* (1); %
-        chAvg = 78;
+        chAvg = 100; % // abs(max(ch11, ch12, ch21, ch22))
         chPwr = sum(sum(abs(H_hat .^ 2))) / (chAvg ^ 2);
         rxSignal = rxSignal ./ chAvg;
         H_hat = H_hat ./ chAvg;
@@ -126,12 +134,14 @@ for iter_trail = 1: numTrails
 
             s = [s1;s2;s3;s4];
             
+            s = s / (sqrt(2) * 23170);
+            
             if (cc == 1)
                 enc_data_hat((iter_qam - 1) * 4 * log2(M) + 1:iter_qam * 4 * log2(M), 1) = ...
                     qamdemod(s, M, 'gray', 'OutputType', 'approxllr');
             else
                 enc_data_hat((iter_qam - 1) * 4 * log2(M) + 1:iter_qam * 4 * log2(M), 1) = ...
-                    qamdemod(s, M, 'gray', 'OutputType', 'bit');    
+                    qamdemod(s, M, 'gray', 'OutputType', 'bit', 'UnitAveragePower', 1);    
             end
             
             iter_qam = iter_qam + 1;
