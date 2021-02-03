@@ -371,14 +371,11 @@ int rx_pdsch(PHY_VARS_UE *ue,
     return(-1);
   }
 
-#if UE_TIMING_TRACE
-  stop_meas(&ue->generic_stat_bis[ue->current_thread_id[subframe]][slot]);
-  LOG_I(PHY, "[AbsSFN %d.%d] Slot%d Symbol %d Flag %d type %d: Pilot/Data extraction  %5.2f \n",frame,subframe,slot,symbol,
-        ue->high_speed_flag,type,ue->generic_stat_bis[ue->current_thread_id[subframe]][slot].p_time/(cpuf*1000.0));
-#endif
-#if UE_TIMING_TRACE
-  start_meas(&ue->generic_stat_bis[ue->current_thread_id[subframe]][slot]);
-#endif
+// #if UE_TIMING_TRACE
+//   stop_meas(&ue->generic_stat_bis[ue->current_thread_id[subframe]][slot]);
+//   LOG_I(PHY, "[AbsSFN %d.%rx_pdsch
+//   start_meas(&ue->generic_stat_bis[ue->current_thread_id[subframe]][slot]);
+// #endif
   aatx = frame_parms->nb_antenna_ports_eNB;
   aarx = frame_parms->nb_antennas_rx;
   dlsch_scale_channel(pdsch_vars[eNB_id]->dl_ch_estimates_ext,
@@ -557,10 +554,7 @@ int rx_pdsch(PHY_VARS_UE *ue,
         (eNB_id_i<ue->n_connected_eNB)) {
       dlsch_channel_compensation(pdsch_vars[eNB_id_i]->rxdataF_ext,
                                  pdsch_vars[eNB_id_i]->dl_ch_estimates_ext,
-                                 pdsch_vars[eNB_id_i]->dl_ch_mag0,
-                                 pdsch_vars[eNB_id_i]->dl_ch_magb0,
-                                 pdsch_vars[eNB_id_i]->rxdataF_comp0,
-                                 (aatx>1) ? pdsch_vars[eNB_id_i]->rho : NULL,
+                                 pdsch_vars[eNB_id_ipdsch_vars[eNB_id]->rxdataF_comp0rs[eNB_id_i]->rho : NULL,
                                  frame_parms,
                                  symbol,
                                  first_symbol_flag,
@@ -792,13 +786,15 @@ int rx_pdsch(PHY_VARS_UE *ue,
   //                  pdsch_vars[eNB_id]->dl_ch_magb0,
   //                  symbol,
   //                  nb_rb);
-  // // } else if (dlsch0_harq->mimo_mode == FULL_RATE_STBC_2_2) {
-  } else {  dlsch_rx_stbc(frame_parms,
+  // } else if (dlsch0_harq->mimo_mode == FULL_RATE_STBC_2_2) {
+  } else {  
+    dlsch_rx_stbc(frame_parms,
                    pdsch_vars[eNB_id]->rxdataF_ext,
                    pdsch_vars[eNB_id]->rxdataF_comp0,
                    pdsch_vars[eNB_id]->dl_ch_estimates_ext,
                    symbol,
                    nb_rb,
+                   avg,
                    dlsch0_harq->Qm);
   }
 
@@ -4523,11 +4519,14 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
                           int **dl_ch_ext,
                           unsigned char symbol,
                           unsigned short nb_rb,
+                          int * avg,
                           uint8_t Qm) {
 
   // NEED HARDCODED QAM TABLE FOR 4-QAM, 16-QAM, and 64-QAM.
+
+  int32_t QAM_2[8] = {362, 362, 362, -362, -362, 362, -362, -362};
   
-  int32_t QAM_2[8] = {-23170 ,23170 ,-23170 ,-23170 ,23170 ,23170 ,23170 ,-23170};
+  // int32_t QAM_2[8] = {-23170 ,23170 ,-23170 ,-23170 ,23170 ,23170 ,23170 ,-23170};
   int32_t QAM_4[32] = {-31086,31086,-31086,10362,-31086,-31086,-31086,-10362,-10362,31086,-10362,10362,-10362,-31086,-10362,-10362,31086,31086,31086,10362,31086,-31086,31086,-10362,10362,31086,10362,10362,10362,-31086,10362,-10362};
   int32_t QAM_6[128] = {-35393,35393,-35393,25281,-35393,5056,-35393,15168,-35393,-35393,-35393,-25281,-35393,-5056,-35393,-15168,-25281,35393,-25281,25281,-25281,5056,-25281,15168,-25281,-35393,-25281,-25281,-25281,-5056,-25281,-15168,-5056,35393,-5056,25281,-5056,5056,-5056,15168,-5056,-35393,-5056,-25281,-5056,-5056,-5056,-15168,-15168,35393,-15168,25281,-15168,5056,-15168,15168,-15168,-35393,-15168,-25281,-15168,-5056,-15168,-15168,35393,35393,35393,25281,35393,5056,35393,15168,35393,-35393,35393,-25281,35393,-5056,35393,-15168,25281,35393,25281,25281,25281,5056,25281,15168,25281,-35393,25281,-25281,25281,-5056,25281,-15168,5056,35393,5056,25281,5056,5056,5056,15168,5056,-35393,5056,-25281,5056,-5056,5056,-15168,15168,35393,15168,25281,15168,5056,15168,15168,15168,-35393,15168,-25281,15168,-5056,15168,-15168};
 
@@ -4535,6 +4534,7 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
   int32_t * QAM_TABLE;
   int qam_pt[2] = {0, 0};
   // int32_t *ch_11,*ch_12,*ch_21,*ch_22;
+  int32_t ch11p, ch12p, ch21p, ch22p, chAvg1, chAvg2, chAvg;
   // int32_t *z1, *z11, *z11_tmp, *z12, *z12_tmp, *z2, *z21, *z21_tmp, *z22, *z22_tmp, *z3, *z31, *z31_tmp, *z32, *z32_tmp, *z4, *z41, *z41_tmp, *z42, *z42_tmp;
   uint64_t ** MSE;
   int32_t chPwr = 0;
@@ -4548,37 +4548,96 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
 
   //amp = _mm_set1_epi16(ONE_OVER_2_Q15);
 
-  rxF0     = (int32_t *)&rxdataF_ext[0][jj];
-  rxF1     = (int32_t *)&rxdataF_ext[1][jj];
+  // rxF0     = (int32_t *)&rxdataF_ext[0][jj];
+  // rxF1     = (int32_t *)&rxdataF_ext[1][jj];
+  rxF0     = (int16_t *)&rxdataF_ext[0][jj];
+  rxF1     = (int16_t *)&rxdataF_ext[1][jj];
 
-  // For 2-bit truth Table  
-  // rxF0[0] = -54440;
-  // rxF0[1] = 35160;
-  // rxF0[2] = 18770;
-  // rxF0[3] = -87210;
-  // rxF1[0] = -84310;
-  // rxF1[1] = 54440;
-  // rxF1[2] = 21670;
-  // rxF1[3] = -100690;
+  // rxF0[0] = 3671000;
+  // rxF0[1] = 4155300;
+  // rxF0[2] = 9400;
+  // rxF0[3] = -1324200;
+  // rxF1[0] = 4272300;
+  // rxF1[1] = 2555900;
+  // rxF1[2] = -289300;
+  // rxF1[3] = -956700;
 
-  rxF0[0] = 3671000;
-  rxF0[1] = 4155300;
-  rxF0[2] = 9400;
-  rxF0[3] = -1324200;
-  rxF1[0] = 4272300;
-  rxF1[1] = 2555900;
-  rxF1[2] = -289300;
-  rxF1[3] = -956700;
-
-  Qm = 6;
+  Qm = 2;
   
-  // rxF0[0] = 
-  int32_t ch_11[2] = {21, 97}; // (int32_t *)&dl_ch_ext[0][jj];
-  int32_t ch_12[2] = {78, 66}; // (int32_t *)&dl_ch_ext[1][jj];
-  int32_t ch_21[2] = {45, 74}; // (int32_t *)&dl_ch_ext[2][jj];
-  int32_t ch_22[2] = {91, 28}; // (int32_t *)&dl_ch_ext[3][jj];
+  // int32_t ch_11[2] = {21, 97}; // (int32_t *)&dl_ch_ext[0][jj];
+  // int32_t ch_12[2] = {78, 66}; // (int32_t *)&dl_ch_ext[1][jj];
+  // int32_t ch_21[2] = {45, 74}; // (int32_t *)&dl_ch_ext[2][jj];
+  // int32_t ch_22[2] = {91, 28}; // (int32_t *)&dl_ch_ext[3][jj];
 
-  int32_t chAvg = 100; // abs(max(ch11, ch12, ch21, ch22))
+  // int32_t ch_11[2] = {360, 0}; // (int32_t *)&dl_ch_ext[0][jj];
+  // int32_t ch_12[2] = {360, 0}; // (int32_t *)&dl_ch_ext[1][jj];
+  // int32_t ch_21[2] = {360, 0}; // (int32_t *)&dl_ch_ext[2][jj];
+  // int32_t ch_22[2] = {360, 0}; // (int32_t *)&dl_ch_ext[3][jj];
+
+  int32_t * ch_11 = (int32_t *)&dl_ch_ext[0][jj];
+  int32_t * ch_12 = (int32_t *)&dl_ch_ext[1][jj];
+  int32_t * ch_21 = (int32_t *)&dl_ch_ext[2][jj];
+  int32_t * ch_22 = (int32_t *)&dl_ch_ext[3][jj];
+
+  ch_11[0] = ch_11[0] >> log2_approx((uint32_t)avg[0]);
+  ch_11[1] = ch_11[1] >> log2_approx((uint32_t)avg[0]);
+  ch_12[0] = ch_12[0] >> log2_approx((uint32_t)avg[1]);
+  ch_12[1] = ch_12[1] >> log2_approx((uint32_t)avg[1]);
+  ch_21[0] = ch_21[0] >> log2_approx((uint32_t)avg[2]);
+  ch_21[1] = ch_21[1] >> log2_approx((uint32_t)avg[2]);
+  ch_22[0] = ch_22[0] >> log2_approx((uint32_t)avg[3]);
+  ch_22[1] = ch_22[1] >> log2_approx((uint32_t)avg[3]);
+
+  rxF0[0] = rxF0[0] >> ((log2_approx((uint32_t)avg[0] + log2_approx((uint32_t)avg[2]) / 2)));
+  rxF0[1] = rxF0[1] >> ((log2_approx((uint32_t)avg[0] + log2_approx((uint32_t)avg[2]) / 2)));
+  rxF0[2] = rxF0[2] >> ((log2_approx((uint32_t)avg[0] + log2_approx((uint32_t)avg[2]) / 2)));
+  rxF0[3] = rxF0[3] >> ((log2_approx((uint32_t)avg[0] + log2_approx((uint32_t)avg[2]) / 2)));
+  
+  rxF1[0] = rxF1[0] >> ((log2_approx((uint32_t)avg[0+1] + log2_approx((uint32_t)avg[2+1]) / 2)));
+  rxF1[1] = rxF1[1] >> ((log2_approx((uint32_t)avg[0+1] + log2_approx((uint32_t)avg[2+1]) / 2)));
+  rxF1[2] = rxF1[2] >> ((log2_approx((uint32_t)avg[0+1] + log2_approx((uint32_t)avg[2+1]) / 2)));
+  rxF1[3] = rxF1[3] >> ((log2_approx((uint32_t)avg[0+1] + log2_approx((uint32_t)avg[2+1]) / 2)));
+
+  LOG_UI(PHY, "Ch11: %d %d\n", ch_11[0], ch_11[1]);
+  LOG_UI(PHY, "Ch12: %d %d\n", ch_12[0], ch_12[1]);
+  LOG_UI(PHY, "Ch21: %d %d\n", ch_21[0], ch_21[1]);
+  LOG_UI(PHY, "Ch22: %d %d\n", ch_22[0], ch_22[1]);
+
+  LOG_UI(PHY, "rxF0: %d %d\n", rxF0[0], rxF0[1]);
+  LOG_UI(PHY, "rxF1: %d %d\n", rxF1[0], rxF1[1]);
+  LOG_UI(PHY, "rxF2: %d %d\n", rxF0[2], rxF0[3]);
+  LOG_UI(PHY, "rxF3: %d %d\n", rxF1[2], rxF1[3]);
+  exit(0);
+
+  ch11p = ch_11[0] * ch_11[0] + ch_11[1] + ch_11[1];
+  ch12p = ch_12[0] * ch_12[0] + ch_12[1] + ch_12[1];
+  ch21p = ch_21[0] * ch_21[0] + ch_21[1] + ch_21[1];
+  ch22p = ch_22[0] * ch_22[0] + ch_22[1] + ch_22[1];
+
+  chPwr = ch11p + ch12p + ch21p + ch22p;
+
+  if (ch22p > ch21p) {
+    chAvg1 = ch22p;
+  } else {
+    chAvg1 = ch21p;
+  }
+
+  if (ch12p > ch11p) {
+    chAvg2 = ch12p;
+  } else {
+    chAvg2 = ch11p;
+  }
+
+  if (chAvg1 >= chAvg2) {
+    chAvg = chAvg1;
+  } else {
+    chAvg = chAvg2;
+  }
+
+  chPwr = chPwr * 1000;
+  chPwr = chPwr / (chAvg * chAvg);
+
+  // int32_t chAvg = 100; // abs(max(ch11, ch12, ch21, ch22))
 
   rxF0[0] = rxF0[0] / chAvg; 
   rxF0[1] = rxF0[1] / chAvg; 
@@ -4629,14 +4688,6 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
   a[0] = c[0] = 7071;
   b[0] = -2909; b[1] = 6444;
   d[0] = b[1]; d[1] = -b[0];
-
-  chPwr = ch_11[0] * ch_11[0] + ch_11[1] * ch_11[1];
-  chPwr += ch_12[0] * ch_12[0] + ch_12[1] * ch_12[1];
-  chPwr += ch_21[0] * ch_21[0] + ch_21[1] * ch_21[1];
-  chPwr += ch_22[0] * ch_22[0] + ch_22[1] * ch_22[1];
-
-  chPwr = chPwr * 1000;
-  chPwr = chPwr / (chAvg * chAvg);
 
   for (rb=0; rb<nb_rb; rb++) {
     for (re=0; re<((pilots==0)?12:8); re+=2) { 
@@ -5128,21 +5179,21 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
             LOG_UI(PHY, "%d - %d\n", s2[0], s2[1]);
             LOG_UI(PHY, "%d - %d\n", s3[0], s3[1]);
             LOG_UI(PHY, "%d - %d\n", s4[0], s4[1]);
-            exit(0);
+            // exit(0);
       // printf("%d - %d\n", s1[0], s1[1]);
 
-            FILE * f = fopen("TEST_QAM_DEC.txt", "w");
-            fprintf(f, "%d - %d\n", s1[0], s1[1]);
-            fprintf(f, "%d - %d\n", s2[0], s2[1]);
-            fprintf(f, "%d - %d\n", s3[0], s3[1]);
-            fprintf(f, "%d - %d\n", s4[0], s4[1]);
+            // FILE * f = fopen("TEST_QAM_DEC.txt", "w");
+            // fprintf(f, "%d - %d\n", s1[0], s1[1]);
+            // fprintf(f, "%d - %d\n", s2[0], s2[1]);
+            // fprintf(f, "%d - %d\n", s3[0], s3[1]);
+            // fprintf(f, "%d - %d\n", s4[0], s4[1]);
             // fprintf(f, "%d - %d\n", rxF0[jj], rxF0[jj + 1]);
             // fprintf(f, "%d - %d\n", rxF1[jj], rxF1[jj + 1]);
             // fprintf(f, "%d - %d\n", rxF0[jj + 2], rxF0[jj + 3]);
             // fprintf(f, "%d - %d\n", rxF1[jj + 2], rxF1[jj + 3]);
             
-            fclose(f);
-            exit(0);
+            // fclose(f);
+            // exit(0);
 
       *rxF0_comp++ = s1[0];
       *rxF0_comp++ = s1[1];
@@ -5155,10 +5206,10 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
 
       rxF0 += 4;
       rxF1 += 4;
-      // ch_11 += 4;
-      // ch_12 += 4;
-      // ch_21 += 4;
-      // ch_22 += 4;
+      ch_11 += 2;
+      ch_12 += 2;
+      ch_21 += 2;
+      ch_22 += 2;
       
     }
   }
