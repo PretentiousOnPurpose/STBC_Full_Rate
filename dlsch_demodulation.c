@@ -4947,22 +4947,25 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
           z4[0] = z42_tmp[0] - z41_tmp[0];
           z4[1] = z42_tmp[1] - z41_tmp[1];
 
-          LOG_UI(PHY, "z1: %d %d\n", z1[0], z1[1]);
-          LOG_UI(PHY, "z2: %d %d\n", z2[0], z2[1]);
-          LOG_UI(PHY, "z3: %d %d\n", z3[0], z3[1]);
-          LOG_UI(PHY, "z4: %d %d\n", z4[0], z4[1]);
-          LOG_UI(PHY, "---------------------------\n");
 
-          exit(0);
+          z1[0] = z1[0] / symAmp;
+          z1[1] = z1[1] / symAmp;
+          z2[0] = z2[0] / symAmp;
+          z2[1] = z2[1] / symAmp;
+          z3[0] = z3[0] / symAmp;
+          z3[1] = z3[1] / symAmp;
+          z4[0] = z4[0] / symAmp;
+          z4[1] = z4[1] / symAmp;
+          
 
-          MSE[iter1][iter2] += (uint64_t)((rxF0[0] - z1[0]) >> (Qm)) * (uint64_t)((rxF0[0] - z1[0]) >> (Qm));
-          MSE[iter1][iter2] += (uint64_t)((rxF0[1] - z1[1]) >> (Qm)) * (uint64_t)((rxF0[1] - z1[1]) >> (Qm));
-          MSE[iter1][iter2] += (uint64_t)((rxF0[2] - z2[0]) >> (Qm)) * (uint64_t)((rxF0[2] - z2[0]) >> (Qm));
-          MSE[iter1][iter2] += (uint64_t)((rxF0[3] - z2[1]) >> (Qm)) * (uint64_t)((rxF0[3] - z2[1]) >> (Qm));
-          MSE[iter1][iter2] += (uint64_t)((rxF1[0] - z3[0]) >> (Qm)) * (uint64_t)((rxF1[0] - z3[0]) >> (Qm));
-          MSE[iter1][iter2] += (uint64_t)((rxF1[1] - z3[1]) >> (Qm)) * (uint64_t)((rxF1[1] - z3[1]) >> (Qm));
-          MSE[iter1][iter2] += (uint64_t)((rxF1[2] - z4[0]) >> (Qm)) * (uint64_t)((rxF1[2] - z4[0]) >> (Qm));
-          MSE[iter1][iter2] += (uint64_t)((rxF1[3] - z4[1]) >> (Qm)) * (uint64_t)((rxF1[3] - z4[1]) >> (Qm));        
+          MSE[iter1][iter2] += (uint64_t)(((int32_t)(rxF0[0]) - z1[0]) >> (Qm)) * (uint64_t)(((int32_t)(rxF0[0]) - z1[0]) >> (Qm));
+          MSE[iter1][iter2] += (uint64_t)(((int32_t)(rxF0[1]) - z1[1]) >> (Qm)) * (uint64_t)(((int32_t)(rxF0[1]) - z1[1]) >> (Qm));
+          MSE[iter1][iter2] += (uint64_t)(((int32_t)(rxF0[2]) - z2[0]) >> (Qm)) * (uint64_t)(((int32_t)(rxF0[2]) - z2[0]) >> (Qm));
+          MSE[iter1][iter2] += (uint64_t)(((int32_t)(rxF0[3]) - z2[1]) >> (Qm)) * (uint64_t)(((int32_t)(rxF0[3]) - z2[1]) >> (Qm));
+          MSE[iter1][iter2] += (uint64_t)(((int32_t)(rxF1[0]) - z3[0]) >> (Qm)) * (uint64_t)(((int32_t)(rxF1[0]) - z3[0]) >> (Qm));
+          MSE[iter1][iter2] += (uint64_t)(((int32_t)(rxF1[1]) - z3[1]) >> (Qm)) * (uint64_t)(((int32_t)(rxF1[1]) - z3[1]) >> (Qm));
+          MSE[iter1][iter2] += (uint64_t)(((int32_t)(rxF1[2]) - z4[0]) >> (Qm)) * (uint64_t)(((int32_t)(rxF1[2]) - z4[0]) >> (Qm));
+          MSE[iter1][iter2] += (uint64_t)(((int32_t)(rxF1[3]) - z4[1]) >> (Qm)) * (uint64_t)(((int32_t)(rxF1[3]) - z4[1]) >> (Qm));        
         }
       }
 
@@ -4971,20 +4974,20 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
 
       for (iter1 = 0; iter1 < (1 << Qm); iter1++) {
         for (iter2 = 0; iter2 < (1 << Qm); iter2++) {
-          // LOG_UI(PHY, "%d ", MSE[iter1][iter2]);
+          LOG_UI(PHY, "%d ", MSE[iter1][iter2]);
           if (MSE[iter1][iter2] < min) {
               min = MSE[iter1][iter2];
               x = iter1;
               y = iter2;
           }
         }
-        // LOG_UI(PHY, "\n");
+        LOG_UI(PHY, "\n");
       }
 
-      qam_pt[0] = x;
-      qam_pt[1] = y;
+      qam_pt[0] = 3;
+      qam_pt[1] = 3;
 
-      // LOG_UI(PHY, "min QAM x: %d - y: %d\n", x, y);
+      LOG_UI(PHY, "min QAM x: %d - y: %d\n", x, y);
       // Rest two symbols have a closed form solutions given that first two symbols are known
 
       s3[0] = QAM_TABLE[qam_pt[0] * 2];
@@ -5065,7 +5068,6 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
       z4[0] = rxF1[2] - z42[0];
       z4[1] = rxF1[3] - z42[1];
 
-
       // s1 = dlsch_stbc_add(dlsch_stbc_div(dlsch_stbc_add(dlsch_stbc_mul(ch_11, z1, 1, 0), dlsch_stbc_mul(ch_21, z3, 1, 0)), a), dlsch_stbc_div(dlsch_stbc_add(dlsch_stbc_mul(ch_12, z2, 0, 1), dlsch_stbc_mul(ch_22, z4, 0, 1)), c));
       s1[0] = (ch_11[0] * z1[0] - (-ch_11[1]) * z1[1]);
       s1[1] = (ch_11[0] * z1[1] + (-ch_11[1]) * z1[0]);
@@ -5106,7 +5108,10 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
 
       LOG_UI(PHY, "s1: %d %d\n", s1[0], s1[1]);
       LOG_UI(PHY, "s2: %d %d\n", s2[0], s2[1]);
-
+      LOG_UI(PHY, "s3: %d %d\n", s3[0], s3[1]);
+      LOG_UI(PHY, "s4: %d %d\n", s4[0], s4[1]);
+      
+      exit(0);
       rxF0_comp[0] = (short)s1[0];
       rxF0_comp[1] = (short)s1[1];
       rxF0_comp[2] = (short)s2[0];
