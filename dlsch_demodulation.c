@@ -4575,10 +4575,10 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
   int16_t * QAM_TABLE;
   int qam_pt[2] = {0, 0};
   int16_t *ch_11,*ch_12,*ch_21,*ch_22;
-  int16_t ch11p, ch12p, ch21p, ch22p, symAmp, chAvg2, chAvg;
+  int32_t ch11p, ch12p, ch21p, ch22p, chAvg2, chAvg;
   // int16_t *z1, *z11, *z11_tmp, *z12, *z12_tmp, *z2, *z21, *z21_tmp, *z22, *z22_tmp, *z3, *z31, *z31_tmp, *z32, *z32_tmp, *z4, *z41, *z41_tmp, *z42, *z42_tmp;
   uint64_t ** MSE;
-  int16_t chPwr = 0;
+  int32_t chPwr = 0, symAmp;
   int iter1, iter2,x=0,y=0;
   uint64_t min;
   unsigned char rb,re;
@@ -4588,40 +4588,40 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
   short * rxF0_comp = (short *) &rxdataF_comp[0][jj];
 
   // STC - Input Symbols
-  int16_t * s1 = (int16_t *)calloc(2, sizeof(int16_t));
-  int16_t * s2 = (int16_t *)calloc(2, sizeof(int16_t));
-  int16_t * s3 = (int16_t *)calloc(2, sizeof(int16_t));
-  int16_t * s4 = (int16_t *)calloc(2, sizeof(int16_t));
+  int32_t * s1 = (int32_t *)calloc(2, sizeof(int32_t));
+  int32_t * s2 = (int32_t *)calloc(2, sizeof(int32_t));
+  int32_t * s3 = (int32_t *)calloc(2, sizeof(int32_t));
+  int32_t * s4 = (int32_t *)calloc(2, sizeof(int32_t));
 
-  int16_t * z1 = (int16_t *)calloc(2, sizeof(int16_t));
-  int16_t * z11 = (int16_t *)calloc(2, sizeof(int16_t));
-  int16_t * z11_tmp = (int16_t *)calloc(2, sizeof(int16_t));
-  int16_t * z12 = (int16_t *)calloc(2, sizeof(int16_t));
-  int16_t * z12_tmp = (int16_t *)calloc(2, sizeof(int16_t));
+  int32_t * z1 = (int32_t *)calloc(2, sizeof(int32_t));
+  int32_t * z11 = (int32_t *)calloc(2, sizeof(int32_t));
+  int32_t * z11_tmp = (int32_t *)calloc(2, sizeof(int32_t));
+  int32_t * z12 = (int32_t *)calloc(2, sizeof(int32_t));
+  int32_t * z12_tmp = (int32_t *)calloc(2, sizeof(int32_t));
   
-  int16_t * z2 = (int16_t *)calloc(2, sizeof(int16_t));
-  int16_t * z21 = (int16_t *)calloc(2, sizeof(int16_t));
-  int16_t * z21_tmp = (int16_t *)calloc(2, sizeof(int16_t));
-  int16_t * z22 = (int16_t *)calloc(2, sizeof(int16_t));
-  int16_t * z22_tmp = (int16_t *)calloc(2, sizeof(int16_t));
+  int32_t * z2 = (int32_t *)calloc(2, sizeof(int32_t));
+  int32_t * z21 = (int32_t *)calloc(2, sizeof(int32_t));
+  int32_t * z21_tmp = (int32_t *)calloc(2, sizeof(int32_t));
+  int32_t * z22 = (int32_t *)calloc(2, sizeof(int32_t));
+  int32_t * z22_tmp = (int32_t *)calloc(2, sizeof(int32_t));
   
-  int16_t * z3 = (int16_t *)calloc(2, sizeof(int16_t));
-  int16_t * z31 = (int16_t *)calloc(2, sizeof(int16_t));
-  int16_t * z31_tmp = (int16_t *)calloc(2, sizeof(int16_t));
-  int16_t * z32 = (int16_t *)calloc(2, sizeof(int16_t));
-  int16_t * z32_tmp = (int16_t *)calloc(2, sizeof(int16_t));
+  int32_t * z3 = (int32_t *)calloc(2, sizeof(int32_t));
+  int32_t * z31 = (int32_t *)calloc(2, sizeof(int32_t));
+  int32_t * z31_tmp = (int32_t *)calloc(2, sizeof(int32_t));
+  int32_t * z32 = (int32_t *)calloc(2, sizeof(int32_t));
+  int32_t * z32_tmp = (int32_t *)calloc(2, sizeof(int32_t));
 
-  int16_t * z4 = (int16_t *)calloc(2, sizeof(int16_t));
-  int16_t * z41 = (int16_t *)calloc(2, sizeof(int16_t));
-  int16_t * z41_tmp = (int16_t *)calloc(2, sizeof(int16_t));
-  int16_t * z42 = (int16_t *)calloc(2, sizeof(int16_t));  
-  int16_t * z42_tmp = (int16_t *)calloc(2, sizeof(int16_t));
+  int32_t * z4 = (int32_t *)calloc(2, sizeof(int32_t));
+  int32_t * z41 = (int32_t *)calloc(2, sizeof(int32_t));
+  int32_t * z41_tmp = (int32_t *)calloc(2, sizeof(int32_t));
+  int32_t * z42 = (int32_t *)calloc(2, sizeof(int32_t));  
+  int32_t * z42_tmp = (int32_t *)calloc(2, sizeof(int32_t));
           
   // STC - Coding Parameters
-  int16_t * a = (int16_t *)calloc(2, sizeof(int16_t));
-  int16_t * b = (int16_t *)calloc(2, sizeof(int16_t));
-  int16_t * c = (int16_t *)calloc(2, sizeof(int16_t));
-  int16_t * d = (int16_t *)calloc(2, sizeof(int16_t));
+  int32_t * a = (int32_t *)calloc(2, sizeof(int32_t));
+  int32_t * b = (int32_t *)calloc(2, sizeof(int32_t));
+  int32_t * c = (int32_t *)calloc(2, sizeof(int32_t));
+  int32_t * d = (int32_t *)calloc(2, sizeof(int32_t));
 
   rxF0     = (int16_t *)&rxdataF_ext[0][jj];
   rxF1     = (int16_t *)&rxdataF_ext[1][jj];
@@ -4631,15 +4631,27 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
   ch_21 = (int16_t *)&dl_ch_ext[2][jj];
   ch_22 = (int16_t *)&dl_ch_ext[3][jj];
 
-  ch11p = ch_11[0] * ch_11[0] + ch_11[1] * ch_11[1];
-  ch12p = ch_12[0] * ch_12[0] + ch_12[1] * ch_12[1];
-  ch21p = ch_21[0] * ch_21[0] + ch_21[1] * ch_21[1];
-  ch22p = ch_22[0] * ch_22[0] + ch_22[1] * ch_22[1];
+  ch11p = ((int32_t)ch_11[0] * ch_11[0] + (int32_t)ch_11[1] * ch_11[1]);
+  ch12p = ((int32_t)ch_12[0] * ch_12[0] + (int32_t)ch_12[1] * ch_12[1]);
+  ch21p = ((int32_t)ch_21[0] * ch_21[0] + (int32_t)ch_21[1] * ch_21[1]);
+  ch22p = ((int32_t)ch_22[0] * ch_22[0] + (int32_t)ch_22[1] * ch_22[1]);
+
+  LOG_UI(PHY, "rxF0: %d %d\n", rxF0[0], rxF0[1]);
+  LOG_UI(PHY, "rxF1: %d %d\n", rxF1[0], rxF1[1]);
+  LOG_UI(PHY, "rxF0: %d %d\n", rxF0[2], rxF0[3]);
+  LOG_UI(PHY, "rxF1: %d %d\n", rxF1[2], rxF1[3]);
+
+  LOG_UI(PHY, "ch_11: %d %d\n", ch_11[0], ch_11[1]);
+  LOG_UI(PHY, "ch_12: %d %d\n", ch_12[0], ch_12[1]);
+  LOG_UI(PHY, "ch_21: %d %d\n", ch_21[0], ch_21[1]);
+  LOG_UI(PHY, "ch_22: %d %d\n", ch_22[0], ch_22[1]);
 
   Qm = 2;
   symAmp = 10000;
 
   chPwr = ch11p + ch12p + ch21p + ch22p;
+
+  LOG_UI(PHY, "Ch Pwr: %d\n", chPwr);
 
   // HOW TO IMPLEMENT THIS USING INTEGERS
   a[0] = c[0] = 7071;
@@ -4685,29 +4697,27 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
           z11[0] = (ch_11[0] * s3[0] - ch_11[1] * s3[1]) / symAmp;
           z11[1] = (ch_11[0] * s3[1] + ch_11[1] * s3[0]) / symAmp;
 
-          LOG_UI(PHY, "z11: %d %d\n", z11[0], z11[1]);
+          // LOG_UI(PHY, "z11: %d %d\n", z11[0], z11[1]);
           
           // z12 = dlsch_stbc_mul(ch_12, s4, 0, 0);
           z12[0] = (ch_12[0] * s4[0] - ch_12[1] * s4[1]) / symAmp;
           z12[1] = (ch_12[0] * s4[1] + ch_12[1] * s4[0]) / symAmp;
-          LOG_UI(PHY, "z12: %d %d\n", z12[0], z12[1]);
+          // LOG_UI(PHY, "z12: %d %d\n", z12[0], z12[1]);
 
           // dlsch_stbc_add(z11, z12)
           z1[0] = z11[0] + z12[0];
           z1[1] = z11[1] + z12[1];
-          LOG_UI(PHY, "z1: %d %d\n", z1[0], z1[1]);
+          // LOG_UI(PHY, "z1: %d %d\n", z1[0], z1[1]);
 
           //  dlsch_stbc_mul(b, z1, 0, 0)
           z12[0] = ((z1[0] * b[0]) - (z1[1] * b[1])) / symAmp;
           z12[1] = ((z1[0] * b[1]) + (z1[1] * b[0])) / symAmp;
-          LOG_UI(PHY, "z12: %d %d\n", z12[0], z12[1]);
+          // LOG_UI(PHY, "z12: %d %d\n", z12[0], z12[1]);
 
           // z1 = dlsch_stbc_sub(rxF0, z12);
           z1[0] = rxF0[0] - z12[0];
           z1[1] = rxF0[1] - z12[1];
-          LOG_UI(PHY, "rxF0: %d %d\n", rxF0[0], rxF0[1]);
-          LOG_UI(PHY, "z1: %d %d\n", z1[0], z1[1]);
-          exit(0);
+
           // z21 = dlsch_stbc_mul(ch_12, s3, 0, 1);
           z21[0] = (ch_12[0] * s3[0] - ch_12[1] * -s3[1]) / symAmp;
           z21[1] = (ch_12[0] * -s3[1] + ch_12[1] * s3[0]) / symAmp;
@@ -4740,10 +4750,8 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
           z3[0] = rxF1[0] - z32[0];
           z3[1] = rxF1[1] - z32[1];
 
-
           z41[0] = (ch_22[0] * s3[0] - ch_22[1] * -s3[1]) / symAmp;
           z41[1] = (ch_22[0] * -s3[1] + ch_22[1] * s3[0]) / symAmp;
-          
           
           // z42 = dlsch_stbc_mul(ch_21, s4, 0, 1);
           z42[0] = (ch_21[0] * s4[0] - ch_21[1] * -s4[1]) / symAmp;
@@ -4763,7 +4771,7 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
           // s1 = dlsch_stbc_add(dlsch_stbc_div(dlsch_stbc_add(dlsch_stbc_mul(ch_11, z1, 1, 0), dlsch_stbc_mul(ch_21, z3, 1, 0)), a), dlsch_stbc_div(dlsch_stbc_add(dlsch_stbc_mul(ch_12, z2, 0, 1), dlsch_stbc_mul(ch_22, z4, 0, 1)), c));
           s1[0] = (ch_11[0] * z1[0] - (-ch_11[1]) * z1[1]);
           s1[1] = (ch_11[0] * z1[1] + (-ch_11[1]) * z1[0]);
-
+          
           s1[0] += (ch_21[0] * z3[0] - (-ch_21[1]) * z3[1]);
           s1[1] += (ch_21[0] * z3[1] + (-ch_21[1]) * z3[0]);
 
@@ -4773,25 +4781,11 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
           s1[0] += (ch_22[0] * z4[0] - ch_22[1] * -z4[1]);
           s1[1] += (ch_22[0] * -z4[1] + ch_22[1] * z4[0]);
 
-          // LOG_UI(PHY, "s1: %d %d\n", s1[0], s1[1]);
+          s1[0] = (int32_t)((int64_t)s1[0] * symAmp / a[0]);
+          s1[1] = (int32_t)((int64_t)s1[1] * symAmp / a[0]);
 
-          s1[0] = (s1[0]) * symAmp;
-          s1[1] = (s1[1]) * symAmp;
-          // LOG_UI(PHY, "s1: %d %d\n", s1[0], s1[1]);
-
-          s1[0] = s1[0] / a[0];
-          s1[1] = s1[1] / a[0];
-          // LOG_UI(PHY, "s1: %d %d\n", s1[0], s1[1]);
-
-          s1[0] = (s1[0]) * symAmp;
-          s1[1] = (s1[1]) * symAmp;
-          LOG_UI(PHY, "s1: %d %d\n", s1[0], s1[1]);
-
-
-          s1[0] = s1[0] / chPwr;
-          s1[1] = s1[1] / chPwr;
-          LOG_UI(PHY, "s1: %d %d\n", s1[0], s1[1]);
-
+          s1[0] = (int32_t)((int64_t)s1[0] * symAmp / chPwr);
+          s1[1] = (int32_t)((int64_t)s1[1] * symAmp / chPwr);
 
           // s2 = dlsch_stbc_sub(dlsch_stbc_div(dlsch_stbc_add(dlsch_stbc_mul(ch_12, z1, 1, 0), dlsch_stbc_mul(ch_22, z3, 1, 0)), a), dlsch_stbc_div(dlsch_stbc_add(dlsch_stbc_mul(ch_11, z2, 0, 1), dlsch_stbc_mul(ch_21, z4, 0, 1)), c));
           s2[0] = (ch_12[0] * z1[0] - (-ch_12[1]) * z1[1]);
@@ -4806,24 +4800,12 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
           s2[0] -= (ch_21[0] * z4[0] - ch_21[1] * -z4[1]);
           s2[1] -= (ch_21[0] * -z4[1] + ch_21[1] * z4[0]);
 
-          s2[0] = (s2[0]) * symAmp;
-          s2[1] = (s2[1]) * symAmp;
+          s2[0] = (int32_t)((int64_t)s2[0] * symAmp / a[0]);
+          s2[1] = (int32_t)((int64_t)s2[1] * symAmp / a[0]);
 
-          s2[0] = s2[0] / a[0];
-          s2[1] = s2[1] / a[0];
+          s2[0] = (int32_t)((int64_t)s2[0] * symAmp / chPwr);
+          s2[1] = (int32_t)((int64_t)s2[1] * symAmp / chPwr);
 
-
-          s2[0] = (s2[0]) * symAmp;
-          s2[1] = (s2[1]) * symAmp;
-
-          LOG_UI(PHY, "s2: %d %d\n", s2[0], s2[1]);
-          s2[0] = s2[0] / chPwr;
-          s2[1] = s2[1] / chPwr;
-          // LOG_UI(PHY, "s1: %d %d\n", s1[0], s1[1]);
-          LOG_UI(PHY, "s2: %d %d\n", s2[0], s2[1]);
-          // LOG_UI(PHY, "---------------------------\n");
-
-          exit(0);
           // z11 = dlsch_stbc_mul(a, s1, 0, 0);
           z11[0] = (a[0] * s1[0] - a[1] * s1[1]) / symAmp;
           z11[1] = (a[0] * s1[1] + a[1] * s1[0]) / symAmp;
@@ -4965,13 +4947,13 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
           z4[0] = z42_tmp[0] - z41_tmp[0];
           z4[1] = z42_tmp[1] - z41_tmp[1];
 
-          // LOG_UI(PHY, "z1: %d %d\n", z1[0], z1[1]);
-          // LOG_UI(PHY, "z2: %d %d\n", z2[0], z2[1]);
-          // LOG_UI(PHY, "z3: %d %d\n", z3[0], z3[1]);
-          // LOG_UI(PHY, "z4: %d %d\n", z4[0], z4[1]);
-          // LOG_UI(PHY, "---------------------------\n");
+          LOG_UI(PHY, "z1: %d %d\n", z1[0], z1[1]);
+          LOG_UI(PHY, "z2: %d %d\n", z2[0], z2[1]);
+          LOG_UI(PHY, "z3: %d %d\n", z3[0], z3[1]);
+          LOG_UI(PHY, "z4: %d %d\n", z4[0], z4[1]);
+          LOG_UI(PHY, "---------------------------\n");
 
-          // exit(0);
+          exit(0);
 
           MSE[iter1][iter2] += (uint64_t)((rxF0[0] - z1[0]) >> (Qm)) * (uint64_t)((rxF0[0] - z1[0]) >> (Qm));
           MSE[iter1][iter2] += (uint64_t)((rxF0[1] - z1[1]) >> (Qm)) * (uint64_t)((rxF0[1] - z1[1]) >> (Qm));
@@ -5097,17 +5079,11 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
       s1[0] += (ch_22[0] * z4[0] - ch_22[1] * -z4[1]);
       s1[1] += (ch_22[0] * -z4[1] + ch_22[1] * z4[0]);
 
-      s1[0] = (s1[0]) * symAmp;
-      s1[1] = (s1[1]) * symAmp;
+      s1[0] = (int32_t)((int64_t)s1[0] * symAmp / a[0]);
+      s1[1] = (int32_t)((int64_t)s1[1] * symAmp / a[0]);
 
-      s1[0] = s1[0] / a[0];
-      s1[1] = s1[1] / a[0];
-
-      s1[0] = (s1[0]) * symAmp;
-      s1[1] = (s1[1]) * symAmp;
-
-      s1[0] = s1[0] / chPwr;
-      s1[1] = s1[1] / chPwr;
+      s1[0] = (int32_t)((int64_t)s1[0] * symAmp / chPwr);
+      s1[1] = (int32_t)((int64_t)s1[1] * symAmp / chPwr);
 
       // s2 = dlsch_stbc_sub(dlsch_stbc_div(dlsch_stbc_add(dlsch_stbc_mul(ch_12, z1, 1, 0), dlsch_stbc_mul(ch_22, z3, 1, 0)), a), dlsch_stbc_div(dlsch_stbc_add(dlsch_stbc_mul(ch_11, z2, 0, 1), dlsch_stbc_mul(ch_21, z4, 0, 1)), c));
       s2[0] = (ch_12[0] * z1[0] - (-ch_12[1]) * z1[1]);
@@ -5122,17 +5098,11 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
       s2[0] -= (ch_21[0] * z4[0] - ch_21[1] * -z4[1]);
       s2[1] -= (ch_21[0] * -z4[1] + ch_21[1] * z4[0]);
 
-      s2[0] = (s2[0]) * symAmp;
-      s2[1] = (s2[1]) * symAmp;
+      s2[0] = (int32_t)((int64_t)s2[0] * symAmp / a[0]);
+      s2[1] = (int32_t)((int64_t)s2[1] * symAmp / a[0]);
 
-      s2[0] = s2[0] / a[0];
-      s2[1] = s2[1] / a[0];
-
-      s2[0] = (s2[0]) * symAmp;
-      s2[1] = (s2[1]) * symAmp;
-
-      s2[0] = s2[0] / chPwr;
-      s2[1] = s2[1] / chPwr;
+      s2[0] = (int32_t)((int64_t)s2[0] * symAmp / chPwr);
+      s2[1] = (int32_t)((int64_t)s2[1] * symAmp / chPwr);
 
       LOG_UI(PHY, "s1: %d %d\n", s1[0], s1[1]);
       LOG_UI(PHY, "s2: %d %d\n", s2[0], s2[1]);
