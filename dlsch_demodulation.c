@@ -4636,22 +4636,22 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
   ch21p = ((int32_t)ch_21[0] * ch_21[0] + (int32_t)ch_21[1] * ch_21[1]);
   ch22p = ((int32_t)ch_22[0] * ch_22[0] + (int32_t)ch_22[1] * ch_22[1]);
 
-  LOG_UI(PHY, "rxF0: %d %d\n", rxF0[0], rxF0[1]);
-  LOG_UI(PHY, "rxF1: %d %d\n", rxF1[0], rxF1[1]);
-  LOG_UI(PHY, "rxF0: %d %d\n", rxF0[2], rxF0[3]);
-  LOG_UI(PHY, "rxF1: %d %d\n", rxF1[2], rxF1[3]);
+  // LOG_UI(PHY, "rxF0: %d %d\n", rxF0[0], rxF0[1]);
+  // LOG_UI(PHY, "rxF1: %d %d\n", rxF1[0], rxF1[1]);
+  // LOG_UI(PHY, "rxF0: %d %d\n", rxF0[2], rxF0[3]);
+  // LOG_UI(PHY, "rxF1: %d %d\n", rxF1[2], rxF1[3]);
 
-  LOG_UI(PHY, "ch_11: %d %d\n", ch_11[0], ch_11[1]);
-  LOG_UI(PHY, "ch_12: %d %d\n", ch_12[0], ch_12[1]);
-  LOG_UI(PHY, "ch_21: %d %d\n", ch_21[0], ch_21[1]);
-  LOG_UI(PHY, "ch_22: %d %d\n", ch_22[0], ch_22[1]);
+  // LOG_UI(PHY, "ch_11: %d %d\n", ch_11[0], ch_11[1]);
+  // LOG_UI(PHY, "ch_12: %d %d\n", ch_12[0], ch_12[1]);
+  // LOG_UI(PHY, "ch_21: %d %d\n", ch_21[0], ch_21[1]);
+  // LOG_UI(PHY, "ch_22: %d %d\n", ch_22[0], ch_22[1]);
 
   Qm = 2;
   symAmp = 10000;
 
   chPwr = ch11p + ch12p + ch21p + ch22p;
 
-  LOG_UI(PHY, "Ch Pwr: %d\n", chPwr);
+  // LOG_UI(PHY, "Ch Pwr: %d\n", chPwr);
 
   // HOW TO IMPLEMENT THIS USING INTEGERS
   a[0] = c[0] = 7071;
@@ -4974,20 +4974,21 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
 
       for (iter1 = 0; iter1 < (1 << Qm); iter1++) {
         for (iter2 = 0; iter2 < (1 << Qm); iter2++) {
-          LOG_UI(PHY, "%d ", MSE[iter1][iter2]);
+          // LOG_UI(PHY, "%d ", MSE[iter1][iter2]);
           if (MSE[iter1][iter2] < min) {
               min = MSE[iter1][iter2];
               x = iter1;
               y = iter2;
           }
+          MSE[iter1][iter2] = 0;
         }
-        LOG_UI(PHY, "\n");
+        // LOG_UI(PHY, "\n");
       }
 
       qam_pt[0] = 3;
       qam_pt[1] = 3;
 
-      LOG_UI(PHY, "min QAM x: %d - y: %d\n", x, y);
+      // LOG_UI(PHY, "min QAM x: %d - y: %d\n", x, y);
       // Rest two symbols have a closed form solutions given that first two symbols are known
 
       s3[0] = QAM_TABLE[qam_pt[0] * 2];
@@ -5106,12 +5107,22 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
       s2[0] = (int32_t)((int64_t)s2[0] * symAmp / chPwr);
       s2[1] = (int32_t)((int64_t)s2[1] * symAmp / chPwr);
 
-      LOG_UI(PHY, "s1: %d %d\n", s1[0], s1[1]);
-      LOG_UI(PHY, "s2: %d %d\n", s2[0], s2[1]);
-      LOG_UI(PHY, "s3: %d %d\n", s3[0], s3[1]);
-      LOG_UI(PHY, "s4: %d %d\n", s4[0], s4[1]);
+      // LOG_UI(PHY, "s1: %d %d\n", s1[0], s1[1]);
+      // LOG_UI(PHY, "s2: %d %d\n", s2[0], s2[1]);
+      // LOG_UI(PHY, "s3: %d %d\n", s3[0], s3[1]);
+      // LOG_UI(PHY, "s4: %d %d\n", s4[0], s4[1]);
       
-      exit(0);
+      // exit(0);
+
+      s1[0] = s1[0] * 180 / 7071;
+      s1[1] = s1[1] * 180 / 7071;
+      s2[0] = s2[0] * 180 / 7071;
+      s2[1] = s2[1] * 180 / 7071;
+      s3[0] = s3[0] * 180 / 7071;
+      s3[1] = s3[1] * 180 / 7071;
+      s4[0] = s4[0] * 180 / 7071;
+      s4[1] = s4[1] * 180 / 7071;
+
       rxF0_comp[0] = (short)s1[0];
       rxF0_comp[1] = (short)s1[1];
       rxF0_comp[2] = (short)s2[0];
