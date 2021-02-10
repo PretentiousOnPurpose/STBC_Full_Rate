@@ -92,6 +92,7 @@ unsigned char offset_mumimo_llr_drange[29][3]= {{0, 6, 5},{0, 4, 5},{0, 4, 5},{0
 
 extern void print_shorts(char *s,int16_t *x);
 
+static int indSTBC = 0;
 
 int rx_pdsch(PHY_VARS_UE *ue,
              PDSCH_t type,
@@ -4585,7 +4586,12 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
   int jj = (symbol*frame_parms->N_RB_DL*12);
   uint8_t symbol_mod = (symbol>=(7-frame_parms->Ncp)) ? symbol-(7-frame_parms->Ncp) : symbol;
   uint8_t pilots = ((symbol_mod==0)||(symbol_mod==(4-frame_parms->Ncp))) ? 1 : 0;
-  short * rxF0_comp = (short *) &rxdataF_comp[0][jj];
+
+  if (symbol >= 7) {
+    return;
+  }
+
+  short * rxF0_comp = (short *) &rxdataF_comp[0][2 * jj];
 
   // STC - Input Symbols
   int32_t * s1 = (int32_t *)calloc(2, sizeof(int32_t));
@@ -4627,8 +4633,8 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
   rxF1     = (int16_t *)&rxdataF_ext[1][jj];
 
   ch_11 = (int16_t *)&dl_ch_ext[0][jj];
-  ch_12 = (int16_t *)&dl_ch_ext[1][jj];
-  ch_21 = (int16_t *)&dl_ch_ext[2][jj];
+  ch_21 = (int16_t *)&dl_ch_ext[1][jj];
+  ch_12 = (int16_t *)&dl_ch_ext[2][jj];
   ch_22 = (int16_t *)&dl_ch_ext[3][jj];
 
   ch11p = ((int32_t)ch_11[0] * ch_11[0] + (int32_t)ch_11[1] * ch_11[1]);
@@ -4985,8 +4991,8 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
         // LOG_UI(PHY, "\n");
       }
 
-      qam_pt[0] = 3;
-      qam_pt[1] = 3;
+      qam_pt[0] = x;
+      qam_pt[1] = y;
 
       // LOG_UI(PHY, "min QAM x: %d - y: %d\n", x, y);
       // Rest two symbols have a closed form solutions given that first two symbols are known
@@ -5107,13 +5113,6 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
       s2[0] = (int32_t)((int64_t)s2[0] * symAmp / chPwr);
       s2[1] = (int32_t)((int64_t)s2[1] * symAmp / chPwr);
 
-      // LOG_UI(PHY, "s1: %d %d\n", s1[0], s1[1]);
-      // LOG_UI(PHY, "s2: %d %d\n", s2[0], s2[1]);
-      // LOG_UI(PHY, "s3: %d %d\n", s3[0], s3[1]);
-      // LOG_UI(PHY, "s4: %d %d\n", s4[0], s4[1]);
-      
-      // exit(0);
-
       s1[0] = s1[0] * 180 / 7071;
       s1[1] = s1[1] * 180 / 7071;
       s2[0] = s2[0] * 180 / 7071;
@@ -5122,6 +5121,13 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
       s3[1] = s3[1] * 180 / 7071;
       s4[0] = s4[0] * 180 / 7071;
       s4[1] = s4[1] * 180 / 7071;
+
+      // LOG_UI(PHY, "s1: %d %d\n", s1[0], s1[1]);
+      // LOG_UI(PHY, "s2: %d %d\n", s2[0], s2[1]);
+      // LOG_UI(PHY, "s3: %d %d\n", s3[0], s3[1]);
+      // LOG_UI(PHY, "s4: %d %d\n", s4[0], s4[1]);
+      
+      // exit(0);
 
       rxF0_comp[0] = (short)s1[0];
       rxF0_comp[1] = (short)s1[1];
