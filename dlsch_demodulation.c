@@ -4591,7 +4591,7 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
     return;
   }
 
-  short * rxF0_comp = (short *) &rxdataF_comp[0][2 * jj];
+  int16_t * rxF0_comp = (int16_t *) &rxdataF_comp[0][2 * jj];
 
   // STC - Input Symbols
   int32_t * s1 = (int32_t *)calloc(2, sizeof(int32_t));
@@ -4642,16 +4642,6 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
   ch21p = ((int32_t)ch_21[0] * ch_21[0] + (int32_t)ch_21[1] * ch_21[1]);
   ch22p = ((int32_t)ch_22[0] * ch_22[0] + (int32_t)ch_22[1] * ch_22[1]);
 
-  // LOG_UI(PHY, "rxF0: %d %d\n", rxF0[0], rxF0[1]);
-  // LOG_UI(PHY, "rxF1: %d %d\n", rxF1[0], rxF1[1]);
-  // LOG_UI(PHY, "rxF0: %d %d\n", rxF0[2], rxF0[3]);
-  // LOG_UI(PHY, "rxF1: %d %d\n", rxF1[2], rxF1[3]);
-
-  // LOG_UI(PHY, "ch_11: %d %d\n", ch_11[0], ch_11[1]);
-  // LOG_UI(PHY, "ch_12: %d %d\n", ch_12[0], ch_12[1]);
-  // LOG_UI(PHY, "ch_21: %d %d\n", ch_21[0], ch_21[1]);
-  // LOG_UI(PHY, "ch_22: %d %d\n", ch_22[0], ch_22[1]);
-
   Qm = 2;
   symAmp = 10000;
 
@@ -4669,10 +4659,13 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
       *(MSE + iter1) = (uint64_t *)calloc((1 << Qm), sizeof(uint64_t));
   }
 
+  FILE * p = fopen("stbc.txt", "a");
+
   for (rb=0; rb<nb_rb; rb++) {
     for (re=0; re<((pilots==0)?12:8); re+=2) { 
 
-
+      // fprintf(p, "Symbol: %d | jj: %d | NRB: %d | re: %d | pilot: %d | ind: %d\n", symbol, (symbol*frame_parms->N_RB_DL*12), rb, re, pilots, jj);
+      jj += 8;
       if (Qm == 2) {
         QAM_TABLE = QAM_2;
       } else if (Qm == 4) {
@@ -4892,7 +4885,7 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
           z31[0] = (a[0] * s1[0] - a[1] * s1[1]) / symAmp;
           z31[1] = (a[0] * s1[1] + a[1] * s1[0]) / symAmp;
 
-          // z31_tmp = b * s3
+          // z31_tmp = b dlsch_rx_stbc* s3
           z31_tmp[0] = (b[0] * s3[0] - b[1] * s3[1]) / symAmp;
           z31_tmp[1] = (b[0] * s3[1] + b[1] * s3[0]) / symAmp;
 
@@ -4980,7 +4973,9 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
 
       for (iter1 = 0; iter1 < (1 << Qm); iter1++) {
         for (iter2 = 0; iter2 < (1 << Qm); iter2++) {
-          // LOG_UI(PHY, "%d ", MSE[iter1][iter2]);
+          if (rb == 3) {
+          LOG_UI(PHY, "%d ", MSE[iter1][iter2]);
+          }
           if (MSE[iter1][iter2] < min) {
               min = MSE[iter1][iter2];
               x = iter1;
@@ -4988,7 +4983,9 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
           }
           MSE[iter1][iter2] = 0;
         }
-        // LOG_UI(PHY, "\n");
+        if (rb == 3) {
+          LOG_UI(PHY, "\n");
+        }
       }
 
       qam_pt[0] = x;
@@ -5122,23 +5119,47 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
       s4[0] = s4[0] * 180 / 7071;
       s4[1] = s4[1] * 180 / 7071;
 
-      // LOG_UI(PHY, "s1: %d %d\n", s1[0], s1[1]);
-      // LOG_UI(PHY, "s2: %d %d\n", s2[0], s2[1]);
-      // LOG_UI(PHY, "s3: %d %d\n", s3[0], s3[1]);
-      // LOG_UI(PHY, "s4: %d %d\n", s4[0], s4[1]);
+
+      if (rb == 3) {
+
+        LOG_UI(PHY, "rxF0: %d %d\n", rxF0[0], rxF0[1]);
+        LOG_UI(PHY, "rxF1: %d %d\n", rxF1[0], rxF1[1]);
+        LOG_UI(PHY, "rxF0: %d %d\n", rxF0[2], rxF0[3]);
+        LOG_UI(PHY, "rxF1: %d %d\n", rxF1[2], rxF1[3]);
+
+        LOG_UI(PHY, "ch_11: %d %d\n", ch_11[0], ch_11[1]);
+        LOG_UI(PHY, "ch_12: %d %d\n", ch_12[0], ch_12[1]);
+        LOG_UI(PHY, "ch_21: %d %d\n", ch_21[0], ch_21[1]);
+        LOG_UI(PHY, "ch_22: %d %d\n", ch_22[0], ch_22[1]);
+
+        LOG_UI(PHY, "s1: %d %d\n", s1[0], s1[1]);
+        LOG_UI(PHY, "s2: %d %d\n", s2[0], s2[1]);
+        LOG_UI(PHY, "s3: %d %d\n", s3[0], s3[1]);
+        LOG_UI(PHY, "s4: %d %d\n", s4[0], s4[1]);
+
+        exit(0);
+
+      }
+
       
       // exit(0);
 
-      rxF0_comp[0] = (short)s1[0];
-      rxF0_comp[1] = (short)s1[1];
-      rxF0_comp[2] = (short)s2[0];
-      rxF0_comp[3] = (short)s2[1];
-      rxF0_comp[4] = (short)s3[0];
-      rxF0_comp[5] = (short)s3[1];
-      rxF0_comp[6] = (short)s4[0];
-      rxF0_comp[7] = (short)s4[1];
+      rxF0_comp[0] = (int16_t)s1[0];
+      rxF0_comp[1] = (int16_t)s1[1];
+      rxF0_comp[2] = (int16_t)s2[0];
+      rxF0_comp[3] = (int16_t)s2[1];
+      rxF0_comp[4] = (int16_t)s3[0];
+      rxF0_comp[5] = (int16_t)s3[1];
+      rxF0_comp[6] = (int16_t)s4[0];
+      rxF0_comp[7] = (int16_t)s4[1];
+
+      fprintf(p, "symbol: %d | offset: %d | NRB: %d | re: %d | %d %d\n", symbol, (symbol * 12 * 25), rb, re, rxF0_comp[0], rxF0_comp[1]);
+      fprintf(p, "symbol: %d | offset: %d | NRB: %d | re: %d | %d %d\n", symbol, (symbol * 12 * 25), rb, re, rxF0_comp[2], rxF0_comp[3]);
+      fprintf(p, "symbol: %d | offset: %d | NRB: %d | re: %d | %d %d\n", symbol, (symbol * 12 * 25), rb, re+1, rxF0_comp[4], rxF0_comp[5]);
+      fprintf(p, "symbol: %d | offset: %d | NRB: %d | re: %d | %d %d\n", symbol, (symbol * 12 * 25), rb, re+1, rxF0_comp[6], rxF0_comp[7]);
 
       rxF0_comp += 8;
+      indSTBC += 8;
       rxF0 += 4;
       rxF1 += 4;
       ch_11 += 2;
@@ -5147,6 +5168,11 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
       ch_22 += 2;
       
     }
+  }
+  fclose(p);
+
+  if (symbol == 6) {
+    indSTBC = 0;
   }
 
   free(s1);
@@ -5216,6 +5242,8 @@ void dlsch_alamouti(LTE_DL_FRAME_PARMS *frame_parms,
   ch_mag0b = (__m128i *)&dl_ch_magb[0][jj];
   ch_mag1b = (__m128i *)&dl_ch_magb[2][jj];
 
+  FILE * p = fopen("alamouti.txt", "a");
+
   for (rb=0; rb<nb_rb; rb++) {
     for (re=0; re<((pilots==0)?12:8); re+=2) {
       // Alamouti RX combining
@@ -5224,9 +5252,19 @@ void dlsch_alamouti(LTE_DL_FRAME_PARMS *frame_parms,
       rxF0[1] = rxF0[1] - rxF1[3];
       rxF0[2] = rxF0[2] - rxF1[0];
       rxF0[3] = rxF0[3] + rxF1[1];
+      fprintf(p, "Symbol: %d | jj: %d | NRB: %d | re: %d | pilot: %d | ind: %d | %d %d\n", symbol, (symbol*frame_parms->N_RB_DL*12), rb, re, pilots, jj, rxF0[0], rxF0[1]);
+      fprintf(p, "Symbol: %d | jj: %d | NRB: %d | re: %d | pilot: %d | ind: %d | %d %d\n", symbol, (symbol*frame_parms->N_RB_DL*12), rb, re+1, pilots, jj, rxF0[2], rxF0[3]);
       //      printf("Alamouti: rxF0 after (%d,%d,%d,%d)\n",rxF0[0],rxF0[1],rxF0[2],rxF0[3]);
+
+      if (symbol == 4) {
+        fclose(p);
+        exit(0);
+      }
+
       rxF0+=4;
       rxF1+=4;
+      jj += 4;
+
     }
 
     // compute levels for 16QAM or 64 QAM llr unit
@@ -5270,6 +5308,8 @@ void dlsch_alamouti(LTE_DL_FRAME_PARMS *frame_parms,
       rxF0_128+=2;
     }
   }
+
+  fclose(p);
 
   _mm_empty();
   _m_empty();
