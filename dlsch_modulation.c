@@ -43,6 +43,8 @@
 
 //#define is_not_pilot(pilots,re,nushift,use2ndpilots) ((pilots==0) || ((re!=nushift) && (re!=nushift+6)&&((re!=nushift+3)||(use2ndpilots==1))&&((re!=nushift+9)||(use2ndpilots==1)))?1:0)
 
+
+
 uint8_t is_not_pilot(uint8_t pilots, uint8_t re, uint8_t nushift, uint8_t use2ndpilots)
 {
 
@@ -1020,399 +1022,8 @@ int allocate_REs_in_RB(PHY_VARS_eNB* phy_vars_eNB,
 
         }
       }
-
-      else if (mimo_mode == ALAMOUTI) {
-        *re_allocated = *re_allocated + 1;
-
-        amp = (int16_t)(((int32_t)tmp_amp*ONE_OVER_SQRT2_Q15)>>15);
-
-
-          // STC - Input Symbols
-          int16_t * s1 = calloc(2, sizeof(int16_t));
-          int16_t * s2 = calloc(2, sizeof(int16_t));
-          int16_t * s3 = calloc(2, sizeof(int16_t));
-          int16_t * s4 = calloc(2, sizeof(int16_t));
-          
-          // STC - Coding Parameters
-          double * a = calloc(2, sizeof(double));
-          double * b = calloc(2, sizeof(double));
-          double * c = calloc(2, sizeof(double));
-          double * d = calloc(2, sizeof(double));
-
-          a[0] = c[0] = 0.70710678118;
-          b[0] = -0.29093047805; b[1] = 0.64448386864;
-          d[0] = -b[1]; d[1] = b[0];
-
-
-        // switch (mod_order0) {
-
-
-          
-          
-        //   case 2:  //QPSK
-        //     s1[0] = (x0[*jj]==1) ? (-gain_lin_QPSK) : gain_lin_QPSK;
-        //     *jj=*jj+1;
-        //     s1[1] = (x0[*jj]==1) ? (-gain_lin_QPSK) : gain_lin_QPSK;
-        //     *jj=*jj+1;
-
-        //     s2[0] = (x0[*jj]==1) ? (-gain_lin_QPSK) : gain_lin_QPSK;
-        //     *jj=*jj+1;
-        //     s2[1] = (x0[*jj]==1) ? (-gain_lin_QPSK) : gain_lin_QPSK;
-        //     *jj=*jj+1;
-
-        //     s3[0] = (x0[*jj]==1) ? (-gain_lin_QPSK) : gain_lin_QPSK;
-        //     *jj=*jj+1;
-        //     s3[1] = (x0[*jj]==1) ? (-gain_lin_QPSK) : gain_lin_QPSK;
-        //     *jj=*jj+1;
-
-        //     s4[0] = (x0[*jj]==1) ? (-gain_lin_QPSK) : gain_lin_QPSK;
-        //     *jj=*jj+1;
-        //     s4[1] = (x0[*jj]==1) ? (-gain_lin_QPSK) : gain_lin_QPSK;
-        //     *jj=*jj+1;
-
-        //   break;
-
-        //   case 4: // 16-QAM
-
-
-        //     qam16_table_offset_re = 0;
-        //     qam16_table_offset_im = 0;
-
-        //     if (x0[*jj] == 1)
-        //       qam16_table_offset_re+=2;
-
-        //     *jj=*jj+1;
-
-        //     if (x0[*jj] == 1)
-        //       qam16_table_offset_im+=2;
-
-        //     *jj=*jj+1;
-
-
-        //     if (x0[*jj] == 1)
-        //       qam16_table_offset_re+=1;
-
-        //     *jj=*jj+1;
-
-        //     if (x0[*jj] == 1)
-        //       qam16_table_offset_im+=1;
-
-        //     *jj=*jj+1;
-
-        //     s1[0]+=qam_table_s0[qam16_table_offset_re];
-        //     s1[1]+=qam_table_s0[qam16_table_offset_im];
-
-        //     qam16_table_offset_re = 0;
-        //     qam16_table_offset_im = 0;
-
-        //     if (x0[*jj] == 1)
-        //       qam16_table_offset_re+=2;
-
-        //     *jj=*jj+1;
-
-        //     if (x0[*jj] == 1)
-        //       qam16_table_offset_im+=2;
-
-        //     *jj=*jj+1;
-
-
-        //     if (x0[*jj] == 1)
-        //       qam16_table_offset_re+=1;
-
-        //     *jj=*jj+1;
-
-        //     if (x0[*jj] == 1)
-        //       qam16_table_offset_im+=1;
-
-        //     *jj=*jj+1;
-
-        //     s2[0]+=qam_table_s0[qam16_table_offset_re];
-        //     s2[1]+=qam_table_s0[qam16_table_offset_im];
-
-        //     qam16_table_offset_re = 0;
-        //     qam16_table_offset_im = 0;
-
-        //     if (x0[*jj] == 1)
-        //       qam16_table_offset_re+=2;
-
-        //     *jj=*jj+1;
-
-        //     if (x0[*jj] == 1)
-        //       qam16_table_offset_im+=2;
-
-        //     *jj=*jj+1;
-
-
-        //     if (x0[*jj] == 1)
-        //       qam16_table_offset_re+=1;
-
-        //     *jj=*jj+1;
-
-        //     if (x0[*jj] == 1)
-        //       qam16_table_offset_im+=1;
-
-        //     *jj=*jj+1;
-
-        //     s3[0]+=qam_table_s0[qam16_table_offset_re];
-        //     s3[1]+=qam_table_s0[qam16_table_offset_im];
-
-        //     qam16_table_offset_re = 0;
-        //     qam16_table_offset_im = 0;
-
-        //     if (x0[*jj] == 1)
-        //       qam16_table_offset_re+=2;
-
-        //     *jj=*jj+1;
-
-        //     if (x0[*jj] == 1)
-        //       qam16_table_offset_im+=2;
-
-        //     *jj=*jj+1;
-
-
-        //     if (x0[*jj] == 1)
-        //       qam16_table_offset_re+=1;
-
-        //     *jj=*jj+1;
-
-        //     if (x0[*jj] == 1)
-        //       qam16_table_offset_im+=1;
-
-        //     *jj=*jj+1;
-
-        //     s4[0]+=qam_table_s0[qam16_table_offset_re];
-        //     s4[1]+=qam_table_s0[qam16_table_offset_im];
-
-
-        //   break;
-
-        //   case 6: // 64-QAM
-        //     qam64_table_offset_re = 0;
-        //     qam64_table_offset_im = 0;
-
-        //     if (x0[*jj] == 1)
-        //       qam64_table_offset_re+=4;
-
-        //     *jj=*jj+1;
-
-        //     if (x0[*jj] == 1)
-        //       qam64_table_offset_im+=4;
-
-        //     *jj=*jj+1;
-
-        //     if (x0[*jj] == 1)
-        //       qam64_table_offset_re+=2;
-
-        //     *jj=*jj+1;
-
-        //     if (x0[*jj] == 1)
-        //       qam64_table_offset_im+=2;
-
-        //     *jj=*jj+1;
-
-        //     if (x0[*jj] == 1)
-        //       qam64_table_offset_re+=1;
-
-        //     *jj=*jj+1;
-
-        //     if (x0[*jj] == 1)
-        //       qam64_table_offset_im+=1;
-
-        //     *jj=*jj+1;
-
-        //     s1[0]+=qam_table_s0[qam64_table_offset_re];
-        //     s1[1]+=qam_table_s0[qam64_table_offset_im];
-
-        //     qam64_table_offset_re = 0;
-        //     qam64_table_offset_im = 0;
-
-        //     if (x0[*jj] == 1)
-        //       qam64_table_offset_re+=4;
-
-        //     *jj=*jj+1;
-
-        //     if (x0[*jj] == 1)
-        //       qam64_table_offset_im+=4;
-
-        //     *jj=*jj+1;
-
-        //     if (x0[*jj] == 1)
-        //       qam64_table_offset_re+=2;
-
-        //     *jj=*jj+1;
-
-        //     if (x0[*jj] == 1)
-        //       qam64_table_offset_im+=2;
-
-        //     *jj=*jj+1;
-
-        //     if (x0[*jj] == 1)
-        //       qam64_table_offset_re+=1;
-
-        //     *jj=*jj+1;
-
-        //     if (x0[*jj] == 1)
-        //       qam64_table_offset_im+=1;
-
-        //     *jj=*jj+1;
-
-        //     s2[0]+=qam_table_s0[qam64_table_offset_re];
-        //     s2[1]+=qam_table_s0[qam64_table_offset_im];
-
-        //     qam64_table_offset_re = 0;
-        //     qam64_table_offset_im = 0;
-
-        //     if (x0[*jj] == 1)
-        //       qam64_table_offset_re+=4;
-
-        //     *jj=*jj+1;
-
-        //     if (x0[*jj] == 1)
-        //       qam64_table_offset_im+=4;
-
-        //     *jj=*jj+1;
-
-        //     if (x0[*jj] == 1)
-        //       qam64_table_offset_re+=2;
-
-        //     *jj=*jj+1;
-
-        //     if (x0[*jj] == 1)
-        //       qam64_table_offset_im+=2;
-
-        //     *jj=*jj+1;
-
-        //     if (x0[*jj] == 1)
-        //       qam64_table_offset_re+=1;
-
-        //     *jj=*jj+1;
-
-        //     if (x0[*jj] == 1)
-        //       qam64_table_offset_im+=1;
-
-        //     *jj=*jj+1;
-
-        //     s3[0]+=qam_table_s0[qam64_table_offset_re];
-        //     s3[1]+=qam_table_s0[qam64_table_offset_im];
-
-        //     qam64_table_offset_re = 0;
-        //     qam64_table_offset_im = 0;
-
-        //     if (x0[*jj] == 1)
-        //       qam64_table_offset_re+=4;
-
-        //     *jj=*jj+1;
-
-        //     if (x0[*jj] == 1)
-        //       qam64_table_offset_im+=4;
-
-        //     *jj=*jj+1;
-
-        //     if (x0[*jj] == 1)
-        //       qam64_table_offset_re+=2;
-
-        //     *jj=*jj+1;
-
-        //     if (x0[*jj] == 1)
-        //       qam64_table_offset_im+=2;
-
-        //     *jj=*jj+1;
-
-        //     if (x0[*jj] == 1)
-        //       qam64_table_offset_re+=1;
-
-        //     *jj=*jj+1;
-
-        //     if (x0[*jj] == 1)
-        //       qam64_table_offset_im+=1;
-
-        //     *jj=*jj+1;
-
-        //     s4[0]+=qam_table_s0[qam64_table_offset_re];
-        //     s4[1]+=qam_table_s0[qam64_table_offset_im];
-          int16_t QAM_2[8] = {23170 ,23170 ,23170 ,-23170 ,-23170 ,23170 ,-23170 ,-23170};
-          int16_t QAM_4[32] = {10362 ,10362 ,10362 ,31086 ,31086 ,10362 ,31086 ,31086 ,10362 ,-10362 ,10362 ,-31086 ,31086 ,-10362 ,31086 ,-31086 ,-10362 ,10362 ,-10362 ,31086 ,-31086 ,10362 ,-31086 ,31086 ,-10362 ,-10362 ,-10362 ,-31086 ,-31086 ,-10362 ,-31086 ,-31086};
-          int16_t QAM_6[128] = {15169 ,15169 ,15169 ,5057 ,5057 ,15169 ,5057 ,5057 ,15169 ,25281 ,15169 ,35393 ,5057 ,25281 ,5057 ,35393 ,25281 ,15169 ,25281 ,5057 ,35393 ,15169 ,35393 ,5057 ,25281 ,25281 ,25281 ,35393 ,35393 ,25281 ,35393 ,35393 ,15169 ,-15169 ,15169 ,-5057 ,5057 ,-15169 ,5057 ,-5057 ,15169 ,-25281 ,15169 ,-35393 ,5057 ,-25281 ,5057 ,-35393 ,25281 ,-15169 ,25281 ,-5057 ,35393 ,-15169 ,35393 ,-5057 ,25281 ,-25281 ,25281 ,-35393 ,35393 ,-25281 ,35393 ,-35393 ,-15169 ,15169 ,-15169 ,5057 ,-5057 ,15169 ,-5057 ,5057 ,-15169 ,25281 ,-15169 ,35393 ,-5057 ,25281 ,-5057 ,35393 ,-25281 ,15169 ,-25281 ,5057 ,-35393 ,15169 ,-35393 ,5057 ,-25281 ,25281 ,-25281 ,35393 ,-35393 ,25281 ,-35393 ,35393 ,-15169 ,-15169 ,-15169 ,-5057 ,-5057 ,-15169 ,-5057 ,-5057 ,-15169 ,-25281 ,-15169 ,-35393 ,-5057 ,-25281 ,-5057 ,-35393 ,-25281 ,-15169 ,-25281 ,-5057 ,-35393 ,-15169 ,-35393 ,-5057 ,-25281 ,-25281 ,-25281 ,-35393 ,-35393 ,-25281 ,-35393 ,-35393};
-
-
-          // if (mod_order0 == 2) {
-            s1[0] = (1)?QAM_2[0]:-QAM_2[0];
-            *jj = *jj + 1;
-            s1[1] = (0)?QAM_2[0]:-QAM_2[0];
-            *jj = *jj + 1;
-            s2[0] = (0)?QAM_2[0]:-QAM_2[0];
-            *jj = *jj + 1;
-            s2[1] = (1)?QAM_2[0]:-QAM_2[0];
-            *jj = *jj + 1;
-            s3[0] = (1)?QAM_2[0]:-QAM_2[0];
-            *jj = *jj + 1;
-            s3[1] = (0)?QAM_2[0]:-QAM_2[0];
-            *jj = *jj + 1;
-            s4[0] = (0)?QAM_2[0]:-QAM_2[0];
-            *jj = *jj + 1;
-            s4[1] = (1)?QAM_2[0]:-QAM_2[0];
-            *jj = *jj + 1;
-
-          // } else if (mod_order0 == 4) {
-
-          // } else if (mod_order0 == 6) {
-
-          // }
-
-        //   break;
-        // }
-
-        // Following this paper: https://ieeexplore.ieee.org/document/4400756
-
-
-        FILE * f = fopen("TEST_QAM.txt", "w");
-        fprintf(f, "%d - %d\n", s1[0], s1[1]);
-        fprintf(f, "%d - %d\n", s2[0], s2[1]);
-        fprintf(f, "%d - %d\n", s3[0], s3[1]);
-        fprintf(f, "%d - %d\n", s4[0], s4[1]);
-        
-          ((int16_t*)&txdataF[0][tti_offset])[0] += (int16_t)((a[0] * (double)s1[0]) + (b[0] * (double)s3[0]) - (b[1] * (double)s3[1]));
-          ((int16_t*)&txdataF[0][tti_offset])[1] += (int16_t)((a[0] * (double)s1[1]) + (b[1] * (double)s3[0]) + (b[0] * (double)s3[1]));
-          ((int16_t*)&txdataF[1][tti_offset])[0] += (int16_t)((-c[0] * (double)s2[0]) - (d[0] * (double)s4[0]) + (d[1] * (double)s4[1]));
-          ((int16_t*)&txdataF[1][tti_offset])[1] += (int16_t)((-c[0] * (double)s2[1]) - (d[1] * (double)s4[0]) - (d[0] * (double)s4[1]));
-        fprintf(f, "%d - %d\n", ((int16_t*)&txdataF[0][tti_offset])[0], ((int16_t*)&txdataF[0][tti_offset])[1]);
-        fprintf(f, "%d - %d\n", ((int16_t*)&txdataF[1][tti_offset])[0], ((int16_t*)&txdataF[1][tti_offset])[0]);
-
-            // fill in the rest of the ALAMOUTI precoding
-        if (is_not_pilot(pilots,re + 1,frame_parms->nushift,use2ndpilots)==1) {
-          ((int16_t *)&txdataF[0][tti_offset+1])[0] += (int16_t)((a[0] * (double)s2[0]) + (b[0] * (double)s4[0]) - (b[1] * (double)s4[1]));
-          ((int16_t *)&txdataF[0][tti_offset+1])[1] += (int16_t)((a[0] * (double)s2[1]) + (b[1] * (double)s4[0]) + (b[0] * (double)s4[1]));
-          ((int16_t *)&txdataF[1][tti_offset+1])[0] += (int16_t)((c[0] * (double)s2[0]) + (d[0] * (double)s4[0]) - (d[1] * (double)s4[1]));
-          ((int16_t *)&txdataF[1][tti_offset+1])[1] += (int16_t)((c[0] * (double)s2[1]) + (d[1] * (double)s4[0]) + (d[0] * (double)s4[1]));
-        fprintf(f, "%d - %d\n", ((int16_t*)&txdataF[0][tti_offset + 1])[0], ((int16_t*)&txdataF[0][tti_offset + 1])[1]);
-        fprintf(f, "%d - %d\n", ((int16_t*)&txdataF[1][tti_offset + 1])[0], ((int16_t*)&txdataF[1][tti_offset + 1])[0]);
-        }
-        else {
-          ((int16_t *)&txdataF[0][tti_offset+2])[0] += (int16_t)((a[0] * (double)s2[0]) + (b[0] * (double)s4[0]) - (b[1] * (double)s4[1]));
-          ((int16_t *)&txdataF[0][tti_offset+2])[1] += (int16_t)((a[0] * (double)s2[1]) + (b[1] * (double)s4[0]) + (b[0] * (double)s4[1]));
-          ((int16_t *)&txdataF[1][tti_offset+2])[0] += (int16_t)((c[0] * (double)s2[0]) + (d[0] * (double)s4[0]) - (d[1] * (double)s4[1])); 
-          ((int16_t *)&txdataF[1][tti_offset+2])[1] += (int16_t)((c[0] * (double)s2[1]) + (d[1] * (double)s4[0]) + (d[0] * (double)s4[1]));
-        fprintf(f, "%d - %d\n", ((int16_t*)&txdataF[0][tti_offset + 2])[0], ((int16_t*)&txdataF[0][tti_offset + 2])[1]);
-        fprintf(f, "%d - %d\n", ((int16_t*)&txdataF[1][tti_offset + 2])[0], ((int16_t*)&txdataF[1][tti_offset + 2])[0]);
-        }
-        
-
-        fclose(f);
-
-        free(s1);
-        free(s2);
-        free(s3);
-        free(s4);
-        free(a);
-        free(b);
-        free(c);
-        free(d);
-
-        exit(0);
-
-      }
-
-      else if (mimo_mode == FULL_RATE_STBC_2_2) {
+      // ALAMOUTI
+      else if (mimo_mode == 15) {
         *re_allocated = *re_allocated + 1;
 
         amp = (int16_t)(((int32_t)tmp_amp*ONE_OVER_SQRT2_Q15)>>15);
@@ -1422,7 +1033,7 @@ int allocate_REs_in_RB(PHY_VARS_eNB* phy_vars_eNB,
         case 2:  //QPSK
 
           // first antenna position n -> x0
-          // LOG_UI(PHY,"IISc: %d\n", gain_lin_QPSK);
+
           ((int16_t*)&tmp_sample1)[0] = (x0[*jj]==1) ? (-gain_lin_QPSK) : gain_lin_QPSK;
           *jj=*jj+1;
           ((int16_t*)&tmp_sample1)[1] = (x0[*jj]==1) ? (-gain_lin_QPSK) : gain_lin_QPSK;
@@ -1579,6 +1190,106 @@ int allocate_REs_in_RB(PHY_VARS_eNB* phy_vars_eNB,
           ((int16_t *)&txdataF[1][tti_offset+2])[1] += -((int16_t *)&txdataF[0][tti_offset])[1];
         }
       }
+      // FULL_RATE_STBC_2_2
+      else if (mimo_mode == ALAMOUTI) {
+
+        int32_t tmp_sample3, tmp_sample4;
+        // Design Parameters
+        int16_t ar = 7071;  // ar = 1/sqrt(2) = 23170;
+        int16_t ai = 0;     // ai = 0 = 0;
+        int16_t cr = 7071;  // cr = 1/sqrt(2) = 23170;
+        int16_t ci = 0;     // ci = 0 = 0;
+        int16_t br = -2909; // br = ((1 - sqrt(7))/(4*sqrt(2)) = -9533;
+        int16_t bi = 6444;  // bi = ((1 + sqrt(7))/(4*sqrt(2)) = 21118;
+        int16_t dr = 6444;  // dr = -j((1 + sqrt(7))/(4*sqrt(2)) = 21118;
+        int16_t di = 2909;  // di = -j((1 - sqrt(7))/(4*sqrt(2)) = 2909;
+
+        int16_t xr1, xr2, xr3, xr4, xi1, xi2, xi3, xi4;
+        
+        *re_allocated = *re_allocated + 1;
+
+        amp = (int16_t)(((int32_t)tmp_amp*ONE_OVER_SQRT2_Q15)>>15);
+
+        switch (mod_order0) {
+          case 2:  //QPSK
+
+            // LOG_UI(PHY, "x1: [%d,%d]\n", x0[*jj + 0],x0[*jj + 1]);
+            xr1 = (x0[*jj + 0]==1) ? (-gain_lin_QPSK) : gain_lin_QPSK;  // Re{x1}
+            xi1 = (x0[*jj + 1]==1) ? (-gain_lin_QPSK) : gain_lin_QPSK;  // Im{x1}
+            // LOG_UI(PHY, "[xr1, xi1]: [%d,%d]\n", xr1, xi1);
+            
+            // LOG_UI(PHY, "x2: [%d,%d]\n", 0,0);
+            xr2 = (x0[*jj + 2]==1) ? (-gain_lin_QPSK) : gain_lin_QPSK;  // Re{x2}
+            xi2 = (x0[*jj + 3]==1) ? (-gain_lin_QPSK) : gain_lin_QPSK;  // Im{x2}
+            // LOG_UI(PHY, "[xr2, xi2]: [%d,%d]\n", xr2, xi2);
+            
+            // LOG_UI(PHY, "x3: [%d,%d]\n", 0,0);
+            xr3 = (x0[*jj + 4]==1) ? (-gain_lin_QPSK) : gain_lin_QPSK;  // Re{x3}
+            xi3 = (x0[*jj + 5]==1) ? (-gain_lin_QPSK) : gain_lin_QPSK;  // Im{x3}
+            // LOG_UI(PHY, "[xr3, xi3]: [%d,%d]\n", xr3, xi3);
+            
+            // LOG_UI(PHY, "x4: [%d,%d]\n", 0,0);
+            xr4 = (x0[*jj + 6]==1) ? (-gain_lin_QPSK) : gain_lin_QPSK;  // Re{x4}
+            xi4 = (x0[*jj + 7]==1) ? (-gain_lin_QPSK) : gain_lin_QPSK;  // Im{x4}
+            // LOG_UI(PHY, "[xr4, xi4]: [%d,%d]\n", xr4, xi4);
+            
+            *jj = *jj + 8;
+            
+            // ----------------- Antenna Port 1 Symbol 1
+            // Re{X1} = Re{a*x1 + b*x3} = a[0]x1[0] − a[1]x1[1] + b[0]x3[0] − b[1]x3[1]
+            ((int16_t *)&tmp_sample1)[0] = (ar*xr1 - ai*xi1 + br*xr3 - bi*xi3)/10000;
+            // Im{X1} = Im{a*x1 + b*x3} = a[0]x1[1] + a[1]x1[0] + b[0]x3[1] + b[1]x3[0]
+            ((int16_t *)&tmp_sample1)[1] = (ar*xi1 + ai*xr1 + br*xi3 + bi*xr3)/10000;
+            // LOG_UI(PHY, "Sample 1: [%d, %d] \n", ((int16_t*)&tmp_sample1)[0], ((int16_t*)&tmp_sample1)[1]);
+
+            // ----------------- Antenna Port 2 Symbol 1
+            // Re{X2} = Re{a*x2 + b*x4} = a[0]x2[0] − a[1]x2[1] + b[0]x4[0] − b[1]x4[1]
+            ((int16_t *)&tmp_sample2)[0] = (ar*xr2 - ai*xi2 + br*xr4 - bi*xi4)/10000;
+            // Im{X1} = Im{a*x2 + b*x4} =  a[0]x2[1] + a[1]x2[0] + b[0]x4[1] + b[1]x4[0]
+            ((int16_t *)&tmp_sample2)[1] = (ar*xi2 + ai*xr2 + br*xi4 + bi*xr4)/10000;
+            // LOG_UI(PHY, "Sample 2: [%d, %d] \n", ((int16_t*)&tmp_sample2)[0], ((int16_t*)&tmp_sample2)[1]);
+
+            // ----------------- Antenna Port 1 Symbol 2
+            // Re{X3} = Re{-c*x2* - d*x4*} =  −c[0]x2[0] − c[1]x2[1] − d[0]x4[0] − d[1]x4[1]
+            ((int16_t *)&tmp_sample3)[0] = (-cr*xr2 - ci*xi2 - dr*xr4 - di*xi4)/10000;
+            // Im{X3} = Im{-c*x2* - d*x4*} = c[0]x2[1] − c[1]x2[0] + d[0]x4[1] − d[1]x4[0])
+            ((int16_t *)&tmp_sample3)[1] = (cr*xi2 - ci*xr2 + dr*xi4 - di*xr4)/10000;
+            // LOG_UI(PHY, "Sample 3: [%d, %d] \n", ((int16_t*)&tmp_sample3)[0], ((int16_t*)&tmp_sample3)[1]);
+
+            // ----------------- Antenna Port 2 Symbol 2
+            // Re{X4} = Re{c*x1* + d*x3*} = c[0]x1[0] + c[1]x1[1] + d[0]x3[0] + d[1]x3[1]
+            ((int16_t *)&tmp_sample4)[0] = (cr*xr1 + ci*xi1 + dr*xr3 + di*xi3)/10000;
+            // Im{X4} = Im{c*x2* + d*x4*} = c[1]x1[0] − c[0]x1[1] + d[1]x3[0] − d[0]x3[1]
+            ((int16_t *)&tmp_sample4)[1] = (ci*xr1 - cr*xi1 + di*xr3 - dr*xi3)/10000;
+            // LOG_UI(PHY, "Sample 4: [%d, %d] \n", ((int16_t*)&tmp_sample4)[0], ((int16_t*)&tmp_sample4)[1]);
+            
+            
+	          //gain_lin_QPSK (=amp/sqrt(2)) is already contains the power offset from rho_a/rho_b, so here we do not need divide by sqrt(2) anymore
+            ((int16_t *)&txdataF[0][tti_offset])[0] += (int16_t)((((int16_t *)&tmp_sample1)[0])); // Map Re{X1} to Antenna Port 1
+            ((int16_t *)&txdataF[0][tti_offset])[1] += (int16_t)((((int16_t *)&tmp_sample1)[1])); // Map Im{X1} to Antenna Port 1
+            // LOG_UI(PHY, "txdataF[0][%d]: [%d, %d] \n", tti_offset, ((int16_t*)&txdataF[0][tti_offset + 0])[0], ((int16_t*)&txdataF[0][tti_offset + 0])[1]);
+
+            ((int16_t *)&txdataF[1][tti_offset])[0] += (int16_t)((((int16_t *)&tmp_sample2)[0])); // Map Re{X2} to Antenna Port 2
+            ((int16_t *)&txdataF[1][tti_offset])[1] += (int16_t)((((int16_t *)&tmp_sample2)[1])); // Map Im{X2} to Antenna Port 2
+            // LOG_UI(PHY, "txdataF[1][%d]: [%d, %d] \n", tti_offset, ((int16_t*)&txdataF[0][tti_offset + 0])[0], ((int16_t*)&txdataF[0][tti_offset + 0])[1]);
+
+            break;
+        }
+        // fill in the rest of the FRFD precoding
+        if (is_not_pilot(pilots,re + 1,frame_parms->nushift,use2ndpilots)==1) {
+          ((int16_t *)&txdataF[0][tti_offset+1])[0] += (int16_t)((((int16_t *)&tmp_sample3)[0])); // Map Re{X3} to Antenna Port 1
+          ((int16_t *)&txdataF[0][tti_offset+1])[1] += (int16_t)((((int16_t *)&tmp_sample3)[1])); // Map Im{X3} to Antenna Port 1
+          ((int16_t *)&txdataF[1][tti_offset+1])[0] += (int16_t)((((int16_t *)&tmp_sample4)[0])); // Map Re{X4} to Antenna Port 2
+          ((int16_t *)&txdataF[1][tti_offset+1])[1] += (int16_t)((((int16_t *)&tmp_sample4)[1])); // Map Im{X4} to Antenna Port 2
+        }
+        else {
+          ((int16_t *)&txdataF[0][tti_offset+2])[0] += (int16_t)((((int16_t *)&tmp_sample3)[0])); // Map Re{X3} to Antenna Port 1
+          ((int16_t *)&txdataF[0][tti_offset+2])[1] += (int16_t)((((int16_t *)&tmp_sample3)[1])); // Map Im{X3} to Antenna Port 1
+          ((int16_t *)&txdataF[1][tti_offset+2])[0] += (int16_t)((((int16_t *)&tmp_sample4)[0])); // Map Re{X4} to Antenna Port 2
+          ((int16_t *)&txdataF[1][tti_offset+2])[1] += (int16_t)((((int16_t *)&tmp_sample4)[1])); // Map Im{X4} to Antenna Port 2
+        }
+      }
+      
       else if (mimo_mode == LARGE_CDD) {
 
         *re_allocated = *re_allocated + 1;
@@ -2062,6 +1773,7 @@ int allocate_REs_in_RB(PHY_VARS_eNB* phy_vars_eNB,
           }
         }
       }
+
 
 
       if (mimo_mode == ALAMOUTI) {
