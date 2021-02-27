@@ -533,19 +533,19 @@ int rx_pdsch(PHY_VARS_UE *ue,
 
   // Now channel compensation
   if (dlsch0_harq->mimo_mode<LARGE_CDD) {
-    dlsch_channel_compensation(pdsch_vars[eNB_id]->rxdataF_ext,
-                               pdsch_vars[eNB_id]->dl_ch_estimates_ext,
-                               pdsch_vars[eNB_id]->dl_ch_mag0,
-                               pdsch_vars[eNB_id]->dl_ch_magb0,
-                               pdsch_vars[eNB_id]->rxdataF_comp0,
-                               (aatx>1) ? pdsch_vars[eNB_id]->rho : NULL,
-                               frame_parms,
-                               symbol,
-                               first_symbol_flag,
-                               dlsch0_harq->Qm,
-                               nb_rb,
-                               pdsch_vars[eNB_id]->log2_maxh,
-                               measurements); // log2_maxh+I0_shift
+    // dlsch_channel_compensation(pdsch_vars[eNB_id]->rxdataF_ext,
+    //                            pdsch_vars[eNB_id]->dl_ch_estimates_ext,
+    //                            pdsch_vars[eNB_id]->dl_ch_mag0,
+    //                            pdsch_vars[eNB_id]->dl_ch_magb0,
+    //                            pdsch_vars[eNB_id]->rxdataF_comp0,
+    //                            (aatx>1) ? pdsch_vars[eNB_id]->rho : NULL,
+    //                            frame_parms,
+    //                            symbol,
+    //                            first_symbol_flag,
+    //                            dlsch0_harq->Qm,
+    //                            nb_rb,
+    //                            pdsch_vars[eNB_id]->log2_maxh,
+    //                            measurements); // log2_maxh+I0_shift
 
     // if (symbol == 5) {
     //   LOG_M("rxF_comp_d.m","rxF_c_d",&pdsch_vars[eNB_id]->rxdataF_comp0[0][symbol*frame_parms->N_RB_DL*12],frame_parms->N_RB_DL*12,1,1);
@@ -737,39 +737,39 @@ int rx_pdsch(PHY_VARS_UE *ue,
   start_meas(&ue->generic_stat_bis[ue->current_thread_id[subframe]][slot]);
 #endif
 
-  if (frame_parms->nb_antennas_rx > 1) {
-    if ((dlsch0_harq->mimo_mode == LARGE_CDD) ||
-        ((dlsch0_harq->mimo_mode >=DUALSTREAM_UNIFORM_PRECODING1) &&
-         (dlsch0_harq->mimo_mode <=DUALSTREAM_PUSCH_PRECODING))) { // TM3 or TM4
-      if (frame_parms->nb_antenna_ports_eNB == 2) {
-        dlsch_detection_mrc_TM34(frame_parms,
-                                 pdsch_vars[eNB_id],
-                                 harq_pid,
-                                 dlsch0_harq->round,
-                                 symbol,
-                                 nb_rb,
-                                 1);
+  // if (frame_parms->nb_antennas_rx > 1) {
+  //   if ((dlsch0_harq->mimo_mode == LARGE_CDD) ||
+  //       ((dlsch0_harq->mimo_mode >=DUALSTREAM_UNIFORM_PRECODING1) &&
+  //        (dlsch0_harq->mimo_mode <=DUALSTREAM_PUSCH_PRECODING))) { // TM3 or TM4
+  //     if (frame_parms->nb_antenna_ports_eNB == 2) {
+  //       dlsch_detection_mrc_TM34(frame_parms,
+  //                                pdsch_vars[eNB_id],
+  //                                harq_pid,
+  //                                dlsch0_harq->round,
+  //                                symbol,
+  //                                nb_rb,
+  //                                1);
 
-        // if (symbol == 5) {
-        //   LOG_M("rho0_mrc.m","rho0_0",&pdsch_vars[eNB_id]->dl_ch_rho_ext[harq_pid][round][0][symbol*frame_parms->N_RB_DL*12],frame_parms->N_RB_DL*12,1,1);// should be QAM
-        //   LOG_M("rho2_mrc.m","rho2_0",&pdsch_vars[eNB_id]->dl_ch_rho2_ext[0][symbol*frame_parms->N_RB_DL*12],frame_parms->N_RB_DL*12,1,1);//should be almost 0
-        // }
-      }
-    } else {
-      dlsch_detection_mrc(frame_parms,
-                          pdsch_vars[eNB_id]->rxdataF_comp0,
-                          pdsch_vars[eNB_id_i]->rxdataF_comp0,
-                          pdsch_vars[eNB_id]->rho,
-                          pdsch_vars[eNB_id]->dl_ch_rho_ext[harq_pid][round],
-                          pdsch_vars[eNB_id]->dl_ch_mag0,
-                          pdsch_vars[eNB_id]->dl_ch_magb0,
-                          pdsch_vars[eNB_id_i]->dl_ch_mag0,
-                          pdsch_vars[eNB_id_i]->dl_ch_magb0,
-                          symbol,
-                          nb_rb,
-                          rx_type==rx_IC_single_stream);
-    }
-  }
+  //       if (symbol == 5) {
+  //         LOG_M("rho0_mrc.m","rho0_0",&pdsch_vars[eNB_id]->dl_ch_rho_ext[harq_pid][round][0][symbol*frame_parms->N_RB_DL*12],frame_parms->N_RB_DL*12,1,1);// should be QAM
+  //         LOG_M("rho2_mrc.m","rho2_0",&pdsch_vars[eNB_id]->dl_ch_rho2_ext[0][symbol*frame_parms->N_RB_DL*12],frame_parms->N_RB_DL*12,1,1);//should be almost 0
+  //       }
+  //     }
+  //   } else {
+  //     dlsch_detection_mrc(frame_parms,
+  //                         pdsch_vars[eNB_id]->rxdataF_comp0,
+  //                         pdsch_vars[eNB_id_i]->rxdataF_comp0,
+  //                         pdsch_vars[eNB_id]->rho,
+  //                         pdsch_vars[eNB_id]->dl_ch_rho_ext[harq_pid][round],
+  //                         pdsch_vars[eNB_id]->dl_ch_mag0,
+  //                         pdsch_vars[eNB_id]->dl_ch_magb0,
+  //                         pdsch_vars[eNB_id_i]->dl_ch_mag0,
+  //                         pdsch_vars[eNB_id_i]->dl_ch_magb0,
+  //                         symbol,
+  //                         nb_rb,
+  //                         rx_type==rx_IC_single_stream);
+  //   }
+  // }
 
   //  printf("Combining");
   if ((dlsch0_harq->mimo_mode == SISO) ||
@@ -851,14 +851,127 @@ int rx_pdsch(PHY_VARS_UE *ue,
   switch (dlsch0_harq->Qm) {
     case 2 :
       if ((rx_type==rx_standard) || (codeword_TB1 == -1)) {
-        dlsch_qpsk_llr(frame_parms,
-                       pdsch_vars[eNB_id]->rxdataF_comp0,
-                       (int16_t *)pllr_symbol_cw0,
-                       symbol,
-                       first_symbol_flag,
-                       nb_rb,
-                       adjust_G2(frame_parms,dlsch0_harq->rb_alloc_even,2,subframe,symbol),
-                       beamforming_mode);
+        
+        
+        // if (symbol == 1) {
+            dlsch_qpsk_llr(frame_parms,
+                          pdsch_vars[eNB_id]->rxdataF_comp0,
+                          (int16_t *)pllr_symbol_cw0,
+                          symbol,
+                          first_symbol_flag,
+                          nb_rb,
+                          adjust_G2(frame_parms,dlsch0_harq->rb_alloc_even,2,subframe,symbol),
+                          beamforming_mode);
+        //   dlsch_qpsk_llr(frame_parms,
+        //                   pdsch_vars[eNB_id]->rxdataF_comp0,
+        //                   (int16_t *)pllr_symbol_cw0,
+        //                   symbol+1,
+        //                   0,
+        //                   nb_rb,
+        //                   adjust_G2(frame_parms,dlsch0_harq->rb_alloc_even,2,subframe,symbol+1),
+        //                   beamforming_mode);
+
+        // } else if (symbol == 2) {
+        //     dlsch_qpsk_llr(frame_parms,
+        //                   pdsch_vars[eNB_id]->rxdataF_comp0,
+        //                   (int16_t *)pllr_symbol_cw0,
+        //                   3,
+        //                   0,
+        //                   nb_rb,
+        //                   adjust_G2(frame_parms,dlsch0_harq->rb_alloc_even,2,subframe,3),
+        //                   beamforming_mode);
+        //   dlsch_qpsk_llr(frame_parms,
+        //                   pdsch_vars[eNB_id]->rxdataF_comp0,
+        //                   (int16_t *)pllr_symbol_cw0,
+        //                   4,
+        //                   0,
+        //                   nb_rb,
+        //                   adjust_G2(frame_parms,dlsch0_harq->rb_alloc_even,2,subframe,4),
+        //                   beamforming_mode);
+
+        // }  else if (symbol == 3) {
+        //     dlsch_qpsk_llr(frame_parms,
+        //                   pdsch_vars[eNB_id]->rxdataF_comp0,
+        //                   (int16_t *)pllr_symbol_cw0,
+        //                   5,
+        //                   0,
+        //                   nb_rb,
+        //                   adjust_G2(frame_parms,dlsch0_harq->rb_alloc_even,2,subframe,5),
+        //                   beamforming_mode);
+        //   dlsch_qpsk_llr(frame_parms,
+        //                   pdsch_vars[eNB_id]->rxdataF_comp0,
+        //                   (int16_t *)pllr_symbol_cw0,
+        //                   6,
+        //                   0,
+        //                   nb_rb,
+        //                   adjust_G2(frame_parms,dlsch0_harq->rb_alloc_even,2,subframe,6),
+        //                   beamforming_mode);
+
+        // }  else if (symbol == 4) {
+        //     dlsch_qpsk_llr(frame_parms,
+        //                   pdsch_vars[eNB_id]->rxdataF_comp0,
+        //                   (int16_t *)pllr_symbol_cw0,
+        //                   7,
+        //                   0,
+        //                   nb_rb,
+        //                   adjust_G2(frame_parms,dlsch0_harq->rb_alloc_even,2,subframe,7),
+        //                   beamforming_mode);
+        //   dlsch_qpsk_llr(frame_parms,
+        //                   pdsch_vars[eNB_id]->rxdataF_comp0,
+        //                   (int16_t *)pllr_symbol_cw0,
+        //                   8,
+        //                   0,
+        //                   nb_rb,
+        //                   adjust_G2(frame_parms,dlsch0_harq->rb_alloc_even,2,subframe,8),
+        //                   beamforming_mode);
+
+        // }  else if (symbol == 5) {
+        //     dlsch_qpsk_llr(frame_parms,
+        //                   pdsch_vars[eNB_id]->rxdataF_comp0,
+        //                   (int16_t *)pllr_symbol_cw0,
+        //                   9,
+        //                   0,
+        //                   nb_rb,
+        //                   adjust_G2(frame_parms,dlsch0_harq->rb_alloc_even,2,subframe,9),
+        //                   beamforming_mode);
+        //   dlsch_qpsk_llr(frame_parms,
+        //                   pdsch_vars[eNB_id]->rxdataF_comp0,
+        //                   (int16_t *)pllr_symbol_cw0,
+        //                   10,
+        //                   0,
+        //                   nb_rb,
+        //                   adjust_G2(frame_parms,dlsch0_harq->rb_alloc_even,2,subframe,10),
+        //                   beamforming_mode);
+
+        // }  else if (symbol == 6) {
+        //     dlsch_qpsk_llr(frame_parms,
+        //                   pdsch_vars[eNB_id]->rxdataF_comp0,
+        //                   (int16_t *)pllr_symbol_cw0,
+        //                   11,
+        //                   0,
+        //                   nb_rb,
+        //                   adjust_G2(frame_parms,dlsch0_harq->rb_alloc_even,2,subframe,11),
+        //                   beamforming_mode);
+        //   dlsch_qpsk_llr(frame_parms,
+        //                   pdsch_vars[eNB_id]->rxdataF_comp0,
+        //                   (int16_t *)pllr_symbol_cw0,
+        //                   12,
+        //                   0,
+        //                   nb_rb,
+        //                   adjust_G2(frame_parms,dlsch0_harq->rb_alloc_even,2,subframe,12),
+        //                   beamforming_mode);
+
+        // } else if (symbol == 7) {
+        //     dlsch_qpsk_llr(frame_parms,
+        //                   pdsch_vars[eNB_id]->rxdataF_comp0,
+        //                   (int16_t *)pllr_symbol_cw0,
+        //                   13,
+        //                   0,
+        //                   nb_rb,
+        //                   adjust_G2(frame_parms,dlsch0_harq->rb_alloc_even,2,subframe,13),
+        //                   beamforming_mode);
+
+        // }
       } else if (codeword_TB0 == -1) {
         dlsch_qpsk_llr(frame_parms,
                        pdsch_vars[eNB_id]->rxdataF_comp0,
@@ -1185,7 +1298,7 @@ int rx_pdsch(PHY_VARS_UE *ue,
         break;
     }
   }
-
+ LOG_M("test_alamouti.m","llr0", ue->pdsch_vars[ue->current_thread_id[subframe]][eNB_id]->llr[0],7200,1,0);
 #if UE_TIMING_TRACE
   stop_meas(&ue->generic_stat_bis[ue->current_thread_id[subframe]][slot]);
   LOG_D(PHY, "[AbsSFN %d.%d] Slot%d Symbol %d: LLR Computation  %5.2f \n",frame,subframe,slot,symbol,ue->generic_stat_bis[ue->current_thread_id[subframe]][slot].p_time/(cpuf*1000.0));
@@ -1473,6 +1586,7 @@ void dlsch_channel_compensation(int **rxdataF_ext,
 
   _mm_empty();
   _m_empty();
+
 #elif defined(__arm__)
   unsigned short rb;
   unsigned char aatx,aarx,symbol_mod,pilots=0;
@@ -4584,15 +4698,42 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
   uint64_t min;
   unsigned char rb,re;
   int jj = (symbol*frame_parms->N_RB_DL*12);
+  int jj2 = jj;
   uint8_t symbol_mod = (symbol>=(7-frame_parms->Ncp)) ? symbol-(7-frame_parms->Ncp) : symbol;
   uint8_t pilots = ((symbol_mod==0)||(symbol_mod==(4-frame_parms->Ncp))) ? 1 : 0;
 
-  if (symbol >= 7) {
+  if(symbol > 7) {
     return;
   }
 
-  int16_t * rxF0_comp = (int16_t *) &rxdataF_comp[0][2 * jj];
+  int16_t * rxF0_comp1, * rxF0_comp2, * rxF0_comp3;
 
+      if ((symbol == 1)) {
+          rxF0_comp1 = (int16_t *) &rxdataF_comp[0][1 * 12 * frame_parms->N_RB_DL];
+          rxF0_comp2 = (int16_t *) &rxdataF_comp[0][2 * 12 * frame_parms->N_RB_DL];
+      } else if ((symbol == 2)) {
+          rxF0_comp1 = (int16_t *) &rxdataF_comp[0][3 * 12 * frame_parms->N_RB_DL];
+          rxF0_comp2 = (int16_t *) &rxdataF_comp[0][4 * 12 * frame_parms->N_RB_DL];
+          rxF0_comp3 = (int16_t *) &rxdataF_comp[0][5 * 12 * frame_parms->N_RB_DL];
+      } else if ((symbol == 3)) {
+          rxF0_comp1 = (int16_t *) &rxdataF_comp[0][5 * 12 * frame_parms->N_RB_DL + 100];
+          rxF0_comp2 = (int16_t *) &rxdataF_comp[0][6 * 12 * frame_parms->N_RB_DL];
+          rxF0_comp3 = (int16_t *) &rxdataF_comp[0][7 * 12 * frame_parms->N_RB_DL];
+      } else if ((symbol == 4)) {
+          rxF0_comp1 = (int16_t *) &rxdataF_comp[0][7 * 12 * frame_parms->N_RB_DL + 100];
+          rxF0_comp2 = (int16_t *) &rxdataF_comp[0][8 * 12 * frame_parms->N_RB_DL];
+      } else if ((symbol == 5)) {
+          rxF0_comp1 = (int16_t *) &rxdataF_comp[0][9 * 12 * frame_parms->N_RB_DL];
+          rxF0_comp2 = (int16_t *) &rxdataF_comp[0][10 * 12 * frame_parms->N_RB_DL];
+      } else if ((symbol == 6)) {
+          rxF0_comp1 = (int16_t *) &rxdataF_comp[0][11 * 12 * frame_parms->N_RB_DL];
+          rxF0_comp2 = (int16_t *) &rxdataF_comp[0][12 * 12 * frame_parms->N_RB_DL];
+          rxF0_comp3 = (int16_t *) &rxdataF_comp[0][13 * 12 * frame_parms->N_RB_DL];
+      } else if ((symbol == 7)) {
+          rxF0_comp1 = (int16_t *) &rxdataF_comp[0][13 * 12 * frame_parms->N_RB_DL + 100];
+      } 
+
+  int symCnt = 0;
   // STC - Input Symbols
   int32_t * s1 = (int32_t *)calloc(2, sizeof(int32_t));
   int32_t * s2 = (int32_t *)calloc(2, sizeof(int32_t));
@@ -4629,25 +4770,18 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
   int32_t * c = (int32_t *)calloc(2, sizeof(int32_t));
   int32_t * d = (int32_t *)calloc(2, sizeof(int32_t));
 
-  rxF0     = (int16_t *)&rxdataF_ext[0][jj];
-  rxF1     = (int16_t *)&rxdataF_ext[1][jj];
-
-  ch_11 = (int16_t *)&dl_ch_ext[0][jj];
-  ch_21 = (int16_t *)&dl_ch_ext[1][jj];
-  ch_12 = (int16_t *)&dl_ch_ext[2][jj];
-  ch_22 = (int16_t *)&dl_ch_ext[3][jj];
-
-  ch11p = ((int32_t)ch_11[0] * ch_11[0] + (int32_t)ch_11[1] * ch_11[1]);
-  ch12p = ((int32_t)ch_12[0] * ch_12[0] + (int32_t)ch_12[1] * ch_12[1]);
-  ch21p = ((int32_t)ch_21[0] * ch_21[0] + (int32_t)ch_21[1] * ch_21[1]);
-  ch22p = ((int32_t)ch_22[0] * ch_22[0] + (int32_t)ch_22[1] * ch_22[1]);
-
   Qm = 2;
   symAmp = 10000;
 
-  chPwr = ch11p + ch12p + ch21p + ch22p;
+int cnt = 0;
 
-  // LOG_UI(PHY, "Ch Pwr: %d\n", chPwr);
+rxF0 = (int16_t *)&rxdataF_ext[0][jj];
+rxF1 = (int16_t *)&rxdataF_ext[1][jj];
+
+ch_11 = (int16_t *)&dl_ch_ext[0][jj];
+ch_12 = (int16_t *)&dl_ch_ext[2][jj];
+ch_21 = (int16_t *)&dl_ch_ext[1][jj];
+ch_22 = (int16_t *)&dl_ch_ext[3][jj];
 
   // HOW TO IMPLEMENT THIS USING INTEGERS
   a[0] = c[0] = 7071;
@@ -4664,8 +4798,6 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
   for (rb=0; rb<nb_rb; rb++) {
     for (re=0; re<((pilots==0)?12:8); re+=2) { 
 
-      // fprintf(p, "Symbol: %d | jj: %d | NRB: %d | re: %d | pilot: %d | ind: %d\n", symbol, (symbol*frame_parms->N_RB_DL*12), rb, re, pilots, jj);
-      jj += 8;
       if (Qm == 2) {
         QAM_TABLE = QAM_2;
       } else if (Qm == 4) {
@@ -4674,94 +4806,118 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
         QAM_TABLE = QAM_6;
       }
 
+      // rxF0[0] = 594;
+      // rxF0[1] = -242;
+      // rxF0[2] = -640;
+      // rxF0[3] = 422;
+      
+      // rxF1[0] = -378;
+      // rxF1[1] = 392;
+      // rxF1[2] = -34;
+      // rxF1[3] = -470;
+
+      // ch_11[0] = 328;
+      // ch_11[1] = -352;
+      // ch_12[0] = -264;
+      // ch_12[1] = -216;
+      // ch_21[0] = -64;
+      // ch_21[1] = 496;
+      // ch_22[0] = 448;
+      // ch_22[1] = -360;
+
+      ch11p = ((int32_t)ch_11[0] * ch_11[0] + (int32_t)ch_11[1] * ch_11[1]);
+      ch12p = ((int32_t)ch_12[0] * ch_12[0] + (int32_t)ch_12[1] * ch_12[1]);
+      ch21p = ((int32_t)ch_21[0] * ch_21[0] + (int32_t)ch_21[1] * ch_21[1]);
+      ch22p = ((int32_t)ch_22[0] * ch_22[0] + (int32_t)ch_22[1] * ch_22[1]);
+
+      chPwr = ch11p + ch12p + ch21p + ch22p;
+
+      FILE * fp3 = fopen("rx.txt", "a");
+
+      fprintf(fp3, "%d %d\n", rxF0[0], rxF0[1]);
+      fprintf(fp3, "%d %d\n", rxF0[2], rxF0[3]);
+      fprintf(fp3, "%d %d\n", rxF1[0], rxF1[1]);
+      fprintf(fp3, "%d %d\n", rxF1[2], rxF1[3]);
+
+      fclose(fp3);
+
       // Bruteforce Search over QAM constellations for two symbols
       for (iter1 = 0; iter1 < (1 << Qm); iter1++) {
         for (iter2 = 0; iter2 < (1 << Qm); iter2++) {
           //  Compute Squared Error
-
           s3[0] = QAM_TABLE[2 * iter1];
           s3[1] = QAM_TABLE[2 * iter1 + 1];
           s4[0] = QAM_TABLE[2 * iter2];
           s4[1] = QAM_TABLE[2 * iter2 + 1];
 
-          // LOG_UI(PHY, "s3: %d %d\n", s3[0], s3[1]);
-          
-          // LOG_UI(PHY, "s4: %d %d\n", s4[0], s4[1]);
-
-          // LOG_UI(PHY, "ch_11: %d %d\n", ch_11[0], ch_11[1]);
-          
-          // LOG_UI(PHY, "ch_12: %d %d\n", ch_12[0], ch_12[1]);
+    
 
           // z11 = dlsch_stbc_mul(ch_11, s3, 0, 0);
-          z11[0] = (ch_11[0] * s3[0] - ch_11[1] * s3[1]) / symAmp;
-          z11[1] = (ch_11[0] * s3[1] + ch_11[1] * s3[0]) / symAmp;
+          z11[0] = (ch_11[0] * s3[0]) / symAmp - (ch_11[1] * s3[1]) / symAmp;
+          z11[1] = (ch_11[0] * s3[1]) / symAmp + (ch_11[1] * s3[0]) / symAmp;
 
-          // LOG_UI(PHY, "z11: %d %d\n", z11[0], z11[1]);
           
           // z12 = dlsch_stbc_mul(ch_12, s4, 0, 0);
-          z12[0] = (ch_12[0] * s4[0] - ch_12[1] * s4[1]) / symAmp;
-          z12[1] = (ch_12[0] * s4[1] + ch_12[1] * s4[0]) / symAmp;
-          // LOG_UI(PHY, "z12: %d %d\n", z12[0], z12[1]);
+          z12[0] = (ch_12[0] * s4[0]) / symAmp - (ch_12[1] * s4[1]) / symAmp;
+          z12[1] = (ch_12[0] * s4[1]) / symAmp + (ch_12[1] * s4[0]) / symAmp;
 
           // dlsch_stbc_add(z11, z12)
           z1[0] = z11[0] + z12[0];
           z1[1] = z11[1] + z12[1];
-          // LOG_UI(PHY, "z1: %d %d\n", z1[0], z1[1]);
 
           //  dlsch_stbc_mul(b, z1, 0, 0)
-          z12[0] = ((z1[0] * b[0]) - (z1[1] * b[1])) / symAmp;
-          z12[1] = ((z1[0] * b[1]) + (z1[1] * b[0])) / symAmp;
-          // LOG_UI(PHY, "z12: %d %d\n", z12[0], z12[1]);
+          z12[0] = ((z1[0] * b[0])) / symAmp - ((z1[1] * b[1])) / symAmp;
+          z12[1] = ((z1[0] * b[1])) / symAmp + ((z1[1] * b[0])) / symAmp;
 
           // z1 = dlsch_stbc_sub(rxF0, z12);
           z1[0] = rxF0[0] - z12[0];
           z1[1] = rxF0[1] - z12[1];
-
+          // exit(0);
           // z21 = dlsch_stbc_mul(ch_12, s3, 0, 1);
-          z21[0] = (ch_12[0] * s3[0] - ch_12[1] * -s3[1]) / symAmp;
-          z21[1] = (ch_12[0] * -s3[1] + ch_12[1] * s3[0]) / symAmp;
+          z21[0] = (ch_12[0] * s3[0]) / symAmp - (ch_12[1] * -s3[1]) / symAmp;
+          z21[1] = (ch_12[0] * -s3[1]) / symAmp + (ch_12[1] * s3[0]) / symAmp;
 
           // z22 = dlsch_stbc_mul(ch_11, s4, 0, 1);
-          z22[0] = (ch_11[0] * s4[0] - ch_11[1] * -s4[1]) / symAmp;
-          z22[1] = (ch_11[0] * -s4[1] + ch_11[1] * s4[0]) / symAmp;
+          z22[0] = (ch_11[0] * s4[0]) / symAmp - (ch_11[1] * -s4[1]) / symAmp;
+          z22[1] = (ch_11[0] * -s4[1]) / symAmp + (ch_11[1] * s4[0]) / symAmp;
           z21[0] = z21[0] - z22[0];
           z21[1] = z21[1] - z22[1];
 
           // dlsch_stbc_mul(d, z21, 0, 0)
-          z22[0] = ((z21[0] * d[0]) - (z21[1] * d[1])) / symAmp;
-          z22[1] = ((z21[0] * d[1]) + (z21[1] * d[0])) / symAmp;
+          z22[0] = ((z21[0] * d[0])) / symAmp - ((z21[1] * d[1])) / symAmp;
+          z22[1] = ((z21[0] * d[1])) / symAmp + ((z21[1] * d[0])) / symAmp;
           // z2 = dlsch_stbc_sub(rxF0 + 2, z22);
           z2[0] = rxF0[2] - z22[0];
           z2[1] = rxF0[3] - z22[1];
           // z31 = dlsch_stbc_mul(ch_21, s3, 0, 0);
-          z31[0] = (ch_21[0] * s3[0] - ch_21[1] * s3[1]) / symAmp;
-          z31[1] = (ch_21[0] * s3[1] + ch_21[1] * s3[0]) / symAmp;
+          z31[0] = (ch_21[0] * s3[0]) / symAmp - (ch_21[1] * s3[1]) / symAmp;
+          z31[1] = (ch_21[0] * s3[1]) / symAmp + (ch_21[1] * s3[0]) / symAmp;
           // z32 = dlsch_stbc_mul(ch_22, s4, 0, 0);
-          z32[0] = (ch_22[0] * s4[0] - ch_22[1] * s4[1]) / symAmp;
-          z32[1] = (ch_22[0] * s4[1] + ch_22[1] * s4[0]) / symAmp;
+          z32[0] = (ch_22[0] * s4[0]) / symAmp - (ch_22[1] * s4[1]) / symAmp;
+          z32[1] = (ch_22[0] * s4[1]) / symAmp + (ch_22[1] * s4[0]) / symAmp;
 
           z31[0] = z31[0] + z32[0];
           z31[1] = z31[1] + z32[1];
 
-          z32[0] = ((z31[0] * b[0]) - (z31[1] * b[1])) / symAmp;
-          z32[1] = ((z31[0] * b[1]) + (z31[1] * b[0])) / symAmp;      
+          z32[0] = ((z31[0] * b[0])) / symAmp - ((z31[1] * b[1])) / symAmp;
+          z32[1] = ((z31[0] * b[1])) / symAmp + ((z31[1] * b[0])) / symAmp;      
 
           z3[0] = rxF1[0] - z32[0];
           z3[1] = rxF1[1] - z32[1];
 
-          z41[0] = (ch_22[0] * s3[0] - ch_22[1] * -s3[1]) / symAmp;
-          z41[1] = (ch_22[0] * -s3[1] + ch_22[1] * s3[0]) / symAmp;
+          z41[0] = (ch_22[0] * s3[0]) / symAmp - (ch_22[1] * -s3[1]) / symAmp;
+          z41[1] = (ch_22[0] * -s3[1]) / symAmp + (ch_22[1] * s3[0]) / symAmp;
           
           // z42 = dlsch_stbc_mul(ch_21, s4, 0, 1);
-          z42[0] = (ch_21[0] * s4[0] - ch_21[1] * -s4[1]) / symAmp;
-          z42[1] = (ch_21[0] * -s4[1] + ch_21[1] * s4[0]) / symAmp;
+          z42[0] = (ch_21[0] * s4[0]) / symAmp - (ch_21[1] * -s4[1]) / symAmp;
+          z42[1] = (ch_21[0] * -s4[1]) / symAmp + (ch_21[1] * s4[0]) / symAmp;
           
           z41[0] = z41[0] - z42[0];
           z41[1] = z41[1] - z42[1];
           
           // dlsch_stbc_mul(d, z41, 0, 0)
-          z42[0] = ((z41[0] * d[0]) - (z41[1] * d[1])) / symAmp;
-          z42[1] = ((z41[0] * d[1]) + (z41[1] * d[0])) / symAmp;    
+          z42[0] = ((z41[0] * d[0])) / symAmp - ((z41[1] * d[1])) / symAmp;
+          z42[1] = ((z41[0] * d[1])) / symAmp + ((z41[1] * d[0])) / symAmp;    
           
           // z4 = dlsch_stbc_sub(rxF1 + 2, z42);
           z4[0] = rxF1[2] - z42[0];
@@ -4786,32 +4942,49 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
           s1[0] = (int32_t)((int64_t)s1[0] * symAmp / chPwr);
           s1[1] = (int32_t)((int64_t)s1[1] * symAmp / chPwr);
 
+          // LOG_UI(PHY, "z1: %d %d\n", z1[0], z1[1]);
+          // LOG_UI(PHY, "z2: %d %d\n", z2[0], z2[1]);
+          // LOG_UI(PHY, "z3: %d %d\n", z3[0], z3[1]);
+          // LOG_UI(PHY, "z4: %d %d\n", z4[0], z4[1]);   
+
+          // LOG_UI(PHY, "ch_11: %d %d\n", ch_11[0], ch_11[1]);
+          // LOG_UI(PHY, "ch_12: %d %d\n", ch_12[0], ch_12[1]);
+          // LOG_UI(PHY, "ch_21: %d %d\n", ch_21[0], ch_21[1]);
+          // LOG_UI(PHY, "ch_22: %d %d\n", ch_22[0], ch_22[1]);
           // s2 = dlsch_stbc_sub(dlsch_stbc_div(dlsch_stbc_add(dlsch_stbc_mul(ch_12, z1, 1, 0), dlsch_stbc_mul(ch_22, z3, 1, 0)), a), dlsch_stbc_div(dlsch_stbc_add(dlsch_stbc_mul(ch_11, z2, 0, 1), dlsch_stbc_mul(ch_21, z4, 0, 1)), c));
           s2[0] = (ch_12[0] * z1[0] - (-ch_12[1]) * z1[1]);
           s2[1] = (ch_12[0] * z1[1] + (-ch_12[1]) * z1[0]);
 
+          // LOG_UI(PHY, "--s2: %d %d\n", s2[0], s2[1]);
           s2[0] += (ch_22[0] * z3[0] - (-ch_22[1]) * z3[1]);
           s2[1] += (ch_22[0] * z3[1] + (-ch_22[1]) * z3[0]);
 
+          // LOG_UI(PHY, "--s2: %d %d\n", s2[0], s2[1]);
           s2[0] -= (ch_11[0] * z2[0] - ch_11[1] * -z2[1]);
           s2[1] -= (ch_11[0] * -z2[1] + ch_11[1] * z2[0]);
 
+          // LOG_UI(PHY, "--s2: %d %d\n", s2[0], s2[1]);
           s2[0] -= (ch_21[0] * z4[0] - ch_21[1] * -z4[1]);
           s2[1] -= (ch_21[0] * -z4[1] + ch_21[1] * z4[0]);
 
+
+          // LOG_UI(PHY, "--s2: %d %d\n", s2[0], s2[1]);
           s2[0] = (int32_t)((int64_t)s2[0] * symAmp / a[0]);
           s2[1] = (int32_t)((int64_t)s2[1] * symAmp / a[0]);
 
+          // LOG_UI(PHY, "--s2: %d %d\n", s2[0], s2[1]);
           s2[0] = (int32_t)((int64_t)s2[0] * symAmp / chPwr);
           s2[1] = (int32_t)((int64_t)s2[1] * symAmp / chPwr);
+          // LOG_UI(PHY, "--s2: %d %d\n", s2[0], s2[1]);
+          // LOG_UI(PHY, "--s2: %d\n", chPwr);
 
           // z11 = dlsch_stbc_mul(a, s1, 0, 0);
-          z11[0] = (a[0] * s1[0] - a[1] * s1[1]) / symAmp;
-          z11[1] = (a[0] * s1[1] + a[1] * s1[0]) / symAmp;
+          z11[0] = (a[0] * s1[0]) / symAmp - (a[1] * s1[1]) / symAmp;
+          z11[1] = (a[0] * s1[1]) / symAmp + (a[1] * s1[0]) / symAmp;
 
           // z11_tmp = b * s3
-          z11_tmp[0] = (b[0] * s3[0] - b[1] * s3[1]) / symAmp;
-          z11_tmp[1] = (b[0] * s3[1] + b[1] * s3[0]) / symAmp;
+          z11_tmp[0] = (b[0] * s3[0]) / symAmp - (b[1] * s3[1]) / symAmp;
+          z11_tmp[1] = (b[0] * s3[1]) / symAmp + (b[1] * s3[0]) / symAmp;
 
           z11[0] = (z11[0] + z11_tmp[0]);
           z11[1] = (z11[1] + z11_tmp[1]);
@@ -4821,12 +4994,12 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
           z11_tmp[1] = (ch_11[0] * z11[1] + ch_11[1] * z11[0]);
 
           // z11 = dlsch_stbc_mul(a, s1, 0, 0);
-          z12[0] = (a[0] * s2[0] - a[1] * s2[1]) / symAmp;
-          z12[1] = (a[0] * s2[1] + a[1] * s2[0]) / symAmp;
+          z12[0] = (a[0] * s2[0]) / symAmp - (a[1] * s2[1]) / symAmp;
+          z12[1] = (a[0] * s2[1]) / symAmp + (a[1] * s2[0]) / symAmp;
 
           // z12_tmp = b * s3
-          z12_tmp[0] = (b[0] * s4[0] - b[1] * s4[1]) / symAmp;
-          z12_tmp[1] = (b[0] * s4[1] + b[1] * s4[0]) / symAmp;
+          z12_tmp[0] = (b[0] * s4[0]) / symAmp - (b[1] * s4[1]) / symAmp;
+          z12_tmp[1] = (b[0] * s4[1]) / symAmp + (b[1] * s4[0]) / symAmp;
 
           z12[0] = (z12[0] + z12_tmp[0]);
           z12[1] = (z12[1] + z12_tmp[1]);
@@ -4839,13 +5012,13 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
           z1[1] = z11_tmp[1] + z12_tmp[1];
      
   // --------------------------------------------------------------------------------------------
-          z22[0] = (c[0] * s1[0] - c[1] * -s1[1]) / symAmp;
-          z22[1] = (c[0] * -s1[1] + c[1] * s1[0]) / symAmp;
+          z22[0] = (c[0] * s1[0]) / symAmp - (c[1] * -s1[1]) / symAmp;
+          z22[1] = (c[0] * -s1[1]) / symAmp + (c[1] * s1[0]) / symAmp;
           // LOG_UI(PHY, "z22: %d %d\n", z22[0], z22[1]);
 
           // z22_tmp = b * s3
-          z22_tmp[0] = (d[0] * s3[0] - d[1] * -s3[1]) / symAmp;
-          z22_tmp[1] = (d[0] * -s3[1] + d[1] * s3[0]) / symAmp;
+          z22_tmp[0] = (d[0] * s3[0]) / symAmp - (d[1] * -s3[1]) / symAmp;
+          z22_tmp[1] = (d[0] * -s3[1]) / symAmp + (d[1] * s3[0]) / symAmp;
           // LOG_UI(PHY, "z22_tmp: %d %d\n", z22_tmp[0], z22_tmp[1]);
 
           z22[0] = (z22[0] + z22_tmp[0]);
@@ -4858,12 +5031,12 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
           // LOG_UI(PHY, "z22_tmp: %d %d\n", z22_tmp[0], z22_tmp[1]);
   
 
-          z21_tmp[0] = (d[0] * s4[0] - d[1] * -s4[1]) / symAmp;
-          z21_tmp[1] = (d[0] * -s4[1] + d[1] * s4[0]) / symAmp;
+          z21_tmp[0] = (d[0] * s4[0]) / symAmp - (d[1] * -s4[1]) / symAmp;
+          z21_tmp[1] = (d[0] * -s4[1]) / symAmp + (d[1] * s4[0]) / symAmp;
           // LOG_UI(PHY, "z21_tmp: %d %d\n", z21_tmp[0], z21_tmp[1]);
 
-          z21[0] = (c[0] * s2[0] - c[1] * -s2[1]) / symAmp;
-          z21[1] = (c[0] * -s2[1] + c[1] * s2[0]) / symAmp;
+          z21[0] = (c[0] * s2[0]) / symAmp - (c[1] * -s2[1]) / symAmp;
+          z21[1] = (c[0] * -s2[1]) / symAmp + (c[1] * s2[0]) / symAmp;
           // LOG_UI(PHY, "z21: %d %d\n", z21[0], z21[1]);
 
           z21[0] = (z21[0] + z21_tmp[0]);
@@ -4882,12 +5055,12 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
           // LOG_UI(PHY, "z2: %d %d\n", z2[0], z2[1]);
           // exit(0);
 // -------------------------------------------  -------------------------
-          z31[0] = (a[0] * s1[0] - a[1] * s1[1]) / symAmp;
-          z31[1] = (a[0] * s1[1] + a[1] * s1[0]) / symAmp;
+          z31[0] = (a[0] * s1[0]) / symAmp - (a[1] * s1[1]) / symAmp;
+          z31[1] = (a[0] * s1[1]) / symAmp + (a[1] * s1[0]) / symAmp;
 
           // z31_tmp = b dlsch_rx_stbc* s3
-          z31_tmp[0] = (b[0] * s3[0] - b[1] * s3[1]) / symAmp;
-          z31_tmp[1] = (b[0] * s3[1] + b[1] * s3[0]) / symAmp;
+          z31_tmp[0] = (b[0] * s3[0]) / symAmp - (b[1] * s3[1]) / symAmp;
+          z31_tmp[1] = (b[0] * s3[1]) / symAmp + (b[1] * s3[0]) / symAmp;
 
           z31[0] = (z31[0] + z31_tmp[0]);
           z31[1] = (z31[1] + z31_tmp[1]);
@@ -4897,12 +5070,12 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
           z31_tmp[1] = (ch_21[0] * z31[1] + ch_21[1] * z31[0]);
 
           // z31 = dlsch_stbc_mul(a, s1, 0, 0);
-          z32[0] = (a[0] * s2[0] - a[1] * s2[1]) / symAmp;
-          z32[1] = (a[0] * s2[1] + a[1] * s2[0]) / symAmp;
+          z32[0] = (a[0] * s2[0]) / symAmp - (a[1] * s2[1]) / symAmp;
+          z32[1] = (a[0] * s2[1]) / symAmp + (a[1] * s2[0]) / symAmp;
 
           // z32_tmp = b * s3
-          z32_tmp[0] = (b[0] * s4[0] - b[1] * s4[1]) / symAmp;
-          z32_tmp[1] = (b[0] * s4[1] + b[1] * s4[0]) / symAmp;
+          z32_tmp[0] = (b[0] * s4[0]) / symAmp - (b[1] * s4[1]) / symAmp;
+          z32_tmp[1] = (b[0] * s4[1]) / symAmp + (b[1] * s4[0]) / symAmp;
 
           z32[0] = (z32[0] + z32_tmp[0]);
           z32[1] = (z32[1] + z32_tmp[1]);
@@ -4915,12 +5088,12 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
           z3[1] = z31_tmp[1] + z32_tmp[1];
 
   // --------------------------------------------------------------------------------------------
-          z42[0] = (c[0] * s1[0] - c[1] * -s1[1]) / symAmp;
-          z42[1] = (c[0] * -s1[1] + c[1] * s1[0]) / symAmp;
+          z42[0] = (c[0] * s1[0]) / symAmp - (c[1] * -s1[1]) / symAmp;
+          z42[1] = (c[0] * -s1[1]) / symAmp + (c[1] * s1[0]) / symAmp;
 
           // z42_tmp = b * s3
-          z42_tmp[0] = (d[0] * s3[0] - d[1] * -s3[1]) / symAmp;
-          z42_tmp[1] = (d[0] * -s3[1] + d[1] * s3[0]) / symAmp;
+          z42_tmp[0] = (d[0] * s3[0]) / symAmp - (d[1] * -s3[1]) / symAmp;
+          z42_tmp[1] = (d[0] * -s3[1]) / symAmp + (d[1] * s3[0]) / symAmp;
 
           z42[0] = (z42[0] + z42_tmp[0]);
           z42[1] = (z42[1] + z42_tmp[1]);
@@ -4929,12 +5102,12 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
           z42_tmp[0] = (ch_22[0] * z42[0] - ch_22[1] * z42[1]);
           z42_tmp[1] = (ch_22[0] * z42[1] + ch_22[1] * z42[0]);
 
-          z41[0] = (c[0] * s2[0] - c[1] * -s2[1]) / symAmp;
-          z41[1] = (c[0] * -s2[1] + c[1] * s2[0]) / symAmp;
+          z41[0] = (c[0] * s2[0]) / symAmp - (c[1] * -s2[1]) / symAmp;
+          z41[1] = (c[0] * -s2[1]) / symAmp + (c[1] * s2[0]) / symAmp;
 
           // z41_tmp = b * s3
-          z41_tmp[0] = (d[0] * s4[0] - d[1] * -s4[1]) / symAmp;
-          z41_tmp[1] = (d[0] * -s4[1] + d[1] * s4[0]) / symAmp;
+          z41_tmp[0] = (d[0] * s4[0]) / symAmp - (d[1] * -s4[1]) / symAmp;
+          z41_tmp[1] = (d[0] * -s4[1]) / symAmp + (d[1] * s4[0]) / symAmp;
 
           z41[0] = (z41[0] + z41_tmp[0]);
           z41[1] = (z41[1] + z41_tmp[1]);
@@ -4955,27 +5128,37 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
           z3[1] = z3[1] / symAmp;
           z4[0] = z4[0] / symAmp;
           z4[1] = z4[1] / symAmp;
-          
 
-          MSE[iter1][iter2] += (uint64_t)(((int32_t)(rxF0[0]) - z1[0]) >> (Qm)) * (uint64_t)(((int32_t)(rxF0[0]) - z1[0]) >> (Qm));
-          MSE[iter1][iter2] += (uint64_t)(((int32_t)(rxF0[1]) - z1[1]) >> (Qm)) * (uint64_t)(((int32_t)(rxF0[1]) - z1[1]) >> (Qm));
-          MSE[iter1][iter2] += (uint64_t)(((int32_t)(rxF0[2]) - z2[0]) >> (Qm)) * (uint64_t)(((int32_t)(rxF0[2]) - z2[0]) >> (Qm));
-          MSE[iter1][iter2] += (uint64_t)(((int32_t)(rxF0[3]) - z2[1]) >> (Qm)) * (uint64_t)(((int32_t)(rxF0[3]) - z2[1]) >> (Qm));
-          MSE[iter1][iter2] += (uint64_t)(((int32_t)(rxF1[0]) - z3[0]) >> (Qm)) * (uint64_t)(((int32_t)(rxF1[0]) - z3[0]) >> (Qm));
-          MSE[iter1][iter2] += (uint64_t)(((int32_t)(rxF1[1]) - z3[1]) >> (Qm)) * (uint64_t)(((int32_t)(rxF1[1]) - z3[1]) >> (Qm));
-          MSE[iter1][iter2] += (uint64_t)(((int32_t)(rxF1[2]) - z4[0]) >> (Qm)) * (uint64_t)(((int32_t)(rxF1[2]) - z4[0]) >> (Qm));
-          MSE[iter1][iter2] += (uint64_t)(((int32_t)(rxF1[3]) - z4[1]) >> (Qm)) * (uint64_t)(((int32_t)(rxF1[3]) - z4[1]) >> (Qm));        
+
+          // LOG_UI(PHY, "z1: %d %d\n", z1[0], z1[1]);
+          // LOG_UI(PHY, "z2: %d %d\n", z2[0], z2[1]);
+          // LOG_UI(PHY, "z3: %d %d\n", z3[0], z3[1]);
+          // LOG_UI(PHY, "z4: %d %d\n", z4[0], z4[1]);          
+          // LOG_UI(PHY, "s1: %d %d\n", s1[0], s1[1]);
+          // LOG_UI(PHY, "s2: %d %d\n", s2[0], s2[1]);
+          // LOG_UI(PHY, "s3: %d %d\n", s3[0], s3[1]);
+          // LOG_UI(PHY, "s4: %d %d\n", s4[0], s4[1]); 
+
+          // LOG_UI(PHY, "-------\n");
+          MSE[iter1][iter2] += (uint64_t)(((int32_t)(rxF0[0]) - z1[0])) * (uint64_t)(((int32_t)(rxF0[0]) - z1[0]));
+          MSE[iter1][iter2] += (uint64_t)(((int32_t)(rxF0[1]) - z1[1])) * (uint64_t)(((int32_t)(rxF0[1]) - z1[1]));
+          MSE[iter1][iter2] += (uint64_t)(((int32_t)(rxF0[2]) - z2[0])) * (uint64_t)(((int32_t)(rxF0[2]) - z2[0]));
+          MSE[iter1][iter2] += (uint64_t)(((int32_t)(rxF0[3]) - z2[1])) * (uint64_t)(((int32_t)(rxF0[3]) - z2[1]));
+          MSE[iter1][iter2] += (uint64_t)(((int32_t)(rxF1[0]) - z3[0])) * (uint64_t)(((int32_t)(rxF1[0]) - z3[0]));
+          MSE[iter1][iter2] += (uint64_t)(((int32_t)(rxF1[1]) - z3[1])) * (uint64_t)(((int32_t)(rxF1[1]) - z3[1]));
+          MSE[iter1][iter2] += (uint64_t)(((int32_t)(rxF1[2]) - z4[0])) * (uint64_t)(((int32_t)(rxF1[2]) - z4[0]));
+          MSE[iter1][iter2] += (uint64_t)(((int32_t)(rxF1[3]) - z4[1])) * (uint64_t)(((int32_t)(rxF1[3]) - z4[1]));        
+
         }
       }
 
       // Find the(iter_qam1, iter_qam2) combination with least squared error
       min = MSE[0][0];
-
+      x = 0; y = 0;
+      // LOG_UI(PHY, "MSE: \n");
       for (iter1 = 0; iter1 < (1 << Qm); iter1++) {
         for (iter2 = 0; iter2 < (1 << Qm); iter2++) {
-          if (rb == 3) {
-          LOG_UI(PHY, "%d ", MSE[iter1][iter2]);
-          }
+          // LOG_UI(PHY, "%d ", MSE[iter1][iter2]);
           if (MSE[iter1][iter2] < min) {
               min = MSE[iter1][iter2];
               x = iter1;
@@ -4983,10 +5166,9 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
           }
           MSE[iter1][iter2] = 0;
         }
-        if (rb == 3) {
-          LOG_UI(PHY, "\n");
-        }
+        // LOG_UI(PHY, "\n");
       }
+      
 
       qam_pt[0] = x;
       qam_pt[1] = y;
@@ -5072,6 +5254,7 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
       z4[0] = rxF1[2] - z42[0];
       z4[1] = rxF1[3] - z42[1];
 
+
       // s1 = dlsch_stbc_add(dlsch_stbc_div(dlsch_stbc_add(dlsch_stbc_mul(ch_11, z1, 1, 0), dlsch_stbc_mul(ch_21, z3, 1, 0)), a), dlsch_stbc_div(dlsch_stbc_add(dlsch_stbc_mul(ch_12, z2, 0, 1), dlsch_stbc_mul(ch_22, z4, 0, 1)), c));
       s1[0] = (ch_11[0] * z1[0] - (-ch_11[1]) * z1[1]);
       s1[1] = (ch_11[0] * z1[1] + (-ch_11[1]) * z1[0]);
@@ -5085,11 +5268,14 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
       s1[0] += (ch_22[0] * z4[0] - ch_22[1] * -z4[1]);
       s1[1] += (ch_22[0] * -z4[1] + ch_22[1] * z4[0]);
 
+      
       s1[0] = (int32_t)((int64_t)s1[0] * symAmp / a[0]);
       s1[1] = (int32_t)((int64_t)s1[1] * symAmp / a[0]);
 
+
       s1[0] = (int32_t)((int64_t)s1[0] * symAmp / chPwr);
       s1[1] = (int32_t)((int64_t)s1[1] * symAmp / chPwr);
+
 
       // s2 = dlsch_stbc_sub(dlsch_stbc_div(dlsch_stbc_add(dlsch_stbc_mul(ch_12, z1, 1, 0), dlsch_stbc_mul(ch_22, z3, 1, 0)), a), dlsch_stbc_div(dlsch_stbc_add(dlsch_stbc_mul(ch_11, z2, 0, 1), dlsch_stbc_mul(ch_21, z4, 0, 1)), c));
       s2[0] = (ch_12[0] * z1[0] - (-ch_12[1]) * z1[1]);
@@ -5104,62 +5290,235 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
       s2[0] -= (ch_21[0] * z4[0] - ch_21[1] * -z4[1]);
       s2[1] -= (ch_21[0] * -z4[1] + ch_21[1] * z4[0]);
 
+
       s2[0] = (int32_t)((int64_t)s2[0] * symAmp / a[0]);
       s2[1] = (int32_t)((int64_t)s2[1] * symAmp / a[0]);
 
       s2[0] = (int32_t)((int64_t)s2[0] * symAmp / chPwr);
       s2[1] = (int32_t)((int64_t)s2[1] * symAmp / chPwr);
 
-      s1[0] = s1[0] * 180 / 7071;
-      s1[1] = s1[1] * 180 / 7071;
-      s2[0] = s2[0] * 180 / 7071;
-      s2[1] = s2[1] * 180 / 7071;
-      s3[0] = s3[0] * 180 / 7071;
-      s3[1] = s3[1] * 180 / 7071;
-      s4[0] = s4[0] * 180 / 7071;
-      s4[1] = s4[1] * 180 / 7071;
+      s1[0] = s1[0] * 362 / 7071;
+      s1[1] = s1[1] * 362 / 7071;
+      s2[0] = s2[0] * 362 / 7071;
+      s2[1] = s2[1] * 362 / 7071;
+      s3[0] = s3[0] * 362 / 7071;
+      s3[1] = s3[1] * 362 / 7071;
+      s4[0] = s4[0] * 362 / 7071;
+      s4[1] = s4[1] * 362 / 7071;
 
+      // LOG_UI(PHY, "z1: %d %d\n", z1[0], z1[1]);
+      // LOG_UI(PHY, "z2: %d %d\n", z2[0], z2[1]);
+      // LOG_UI(PHY, "z3: %d %d\n", z3[0], z3[1]);
+      // LOG_UI(PHY, "z4: %d %d\n", z4[0], z4[1]);
 
-      if (rb == 3) {
+      // LOG_UI(PHY, "s1: %d %d\n", s1[0], s1[1]);
+      // LOG_UI(PHY, "s2: %d %d\n", s2[0], s2[1]);
+      // LOG_UI(PHY, "s3: %d %d\n", s3[0], s3[1]);
+      // LOG_UI(PHY, "s4: %d %d\n", s4[0], s4[1]);
 
-        LOG_UI(PHY, "rxF0: %d %d\n", rxF0[0], rxF0[1]);
-        LOG_UI(PHY, "rxF1: %d %d\n", rxF1[0], rxF1[1]);
-        LOG_UI(PHY, "rxF0: %d %d\n", rxF0[2], rxF0[3]);
-        LOG_UI(PHY, "rxF1: %d %d\n", rxF1[2], rxF1[3]);
+      // exit(0);
+            FILE * finalOut = fopen("finalOut.txt", "a");
 
-        LOG_UI(PHY, "ch_11: %d %d\n", ch_11[0], ch_11[1]);
-        LOG_UI(PHY, "ch_12: %d %d\n", ch_12[0], ch_12[1]);
-        LOG_UI(PHY, "ch_21: %d %d\n", ch_21[0], ch_21[1]);
-        LOG_UI(PHY, "ch_22: %d %d\n", ch_22[0], ch_22[1]);
+            fprintf(finalOut, "%d,", (s1[0] < 0));
+            fprintf(finalOut, "%d,", (s1[1] < 0));
+            fprintf(finalOut, "%d,", (s2[0] < 0));
+            fprintf(finalOut, "%d,", (s2[1] < 0));
+            fprintf(finalOut, "%d,", (s3[0] < 0));
+            fprintf(finalOut, "%d,", (s3[1] < 0));
+            fprintf(finalOut, "%d,", (s4[0] < 0));
+            fprintf(finalOut, "%d,", (s4[1] < 0));
 
-        LOG_UI(PHY, "s1: %d %d\n", s1[0], s1[1]);
-        LOG_UI(PHY, "s2: %d %d\n", s2[0], s2[1]);
-        LOG_UI(PHY, "s3: %d %d\n", s3[0], s3[1]);
-        LOG_UI(PHY, "s4: %d %d\n", s4[0], s4[1]);
+            fclose(finalOut);
 
-        exit(0);
-
+      if (symCnt < 12 * frame_parms->N_RB_DL && symbol == 1) {
+        rxF0_comp1[0] = (int16_t)s1[0];
+        rxF0_comp1[1] = (int16_t)s1[1];
+        rxF0_comp1[2] = (int16_t)s2[0];
+        rxF0_comp1[3] = (int16_t)s2[1];
+        rxF0_comp1[4] = (int16_t)s3[0];
+        rxF0_comp1[5] = (int16_t)s3[1];
+        rxF0_comp1[6] = (int16_t)s4[0];
+        rxF0_comp1[7] = (int16_t)s4[1];        
+        rxF0_comp1 += 8;
+      } else if (symCnt >= 12 * frame_parms->N_RB_DL && symbol == 1) {
+        rxF0_comp2[0] = (int16_t)s1[0];
+        rxF0_comp2[1] = (int16_t)s1[1];
+        rxF0_comp2[2] = (int16_t)s2[0];
+        rxF0_comp2[3] = (int16_t)s2[1];
+        rxF0_comp2[4] = (int16_t)s3[0];
+        rxF0_comp2[5] = (int16_t)s3[1];
+        rxF0_comp2[6] = (int16_t)s4[0];
+        rxF0_comp2[7] = (int16_t)s4[1];        
+        rxF0_comp2 += 8;        
       }
 
-      
-      // exit(0);
+      if (symCnt < 12 * frame_parms->N_RB_DL && symbol == 2) {
+        rxF0_comp1[0] = (int16_t)s1[0];
+        rxF0_comp1[1] = (int16_t)s1[1];
+        rxF0_comp1[2] = (int16_t)s2[0];
+        rxF0_comp1[3] = (int16_t)s2[1];
+        rxF0_comp1[4] = (int16_t)s3[0];
+        rxF0_comp1[5] = (int16_t)s3[1];
+        rxF0_comp1[6] = (int16_t)s4[0];
+        rxF0_comp1[7] = (int16_t)s4[1];        
+        rxF0_comp1 += 8;
+      } else if (symCnt < 20 * frame_parms->N_RB_DL && symbol == 2) {
+        rxF0_comp2[0] = (int16_t)s1[0];
+        rxF0_comp2[1] = (int16_t)s1[1];
+        rxF0_comp2[2] = (int16_t)s2[0];
+        rxF0_comp2[3] = (int16_t)s2[1];
+        rxF0_comp2[4] = (int16_t)s3[0];
+        rxF0_comp2[5] = (int16_t)s3[1];
+        rxF0_comp2[6] = (int16_t)s4[0];
+        rxF0_comp2[7] = (int16_t)s4[1];        
+        rxF0_comp2 += 8;
+      } else if (symCnt >= 20 * frame_parms->N_RB_DL && symbol == 2) {
+        rxF0_comp3[0] = (int16_t)s1[0];
+        rxF0_comp3[1] = (int16_t)s1[1];
+        rxF0_comp3[2] = (int16_t)s2[0];
+        rxF0_comp3[3] = (int16_t)s2[1];
+        rxF0_comp3[4] = (int16_t)s3[0];
+        rxF0_comp3[5] = (int16_t)s3[1];
+        rxF0_comp3[6] = (int16_t)s4[0];
+        rxF0_comp3[7] = (int16_t)s4[1];        
+        rxF0_comp3 += 8;
+  
+      }
 
-      rxF0_comp[0] = (int16_t)s1[0];
-      rxF0_comp[1] = (int16_t)s1[1];
-      rxF0_comp[2] = (int16_t)s2[0];
-      rxF0_comp[3] = (int16_t)s2[1];
-      rxF0_comp[4] = (int16_t)s3[0];
-      rxF0_comp[5] = (int16_t)s3[1];
-      rxF0_comp[6] = (int16_t)s4[0];
-      rxF0_comp[7] = (int16_t)s4[1];
+      if (symCnt < 8 * frame_parms->N_RB_DL && symbol == 3) {
+        rxF0_comp1[0] = (int16_t)s1[0];
+        rxF0_comp1[1] = (int16_t)s1[1];
+        rxF0_comp1[2] = (int16_t)s2[0];
+        rxF0_comp1[3] = (int16_t)s2[1];
+        rxF0_comp1[4] = (int16_t)s3[0];
+        rxF0_comp1[5] = (int16_t)s3[1];
+        rxF0_comp1[6] = (int16_t)s4[0];
+        rxF0_comp1[7] = (int16_t)s4[1];    
+        rxF0_comp1 += 8;
+    
+      } else if (symCnt < 20 * frame_parms->N_RB_DL && symbol == 3) {
+        rxF0_comp2[0] = (int16_t)s1[0];
+        rxF0_comp2[1] = (int16_t)s1[1];
+        rxF0_comp2[2] = (int16_t)s2[0];
+        rxF0_comp2[3] = (int16_t)s2[1];
+        rxF0_comp2[4] = (int16_t)s3[0];
+        rxF0_comp2[5] = (int16_t)s3[1];
+        rxF0_comp2[6] = (int16_t)s4[0];
+        rxF0_comp2[7] = (int16_t)s4[1];        
+        rxF0_comp2 += 8;
+      } else if (symCnt >= 20 * frame_parms->N_RB_DL && symbol == 3) {
+        rxF0_comp3[0] = (int16_t)s1[0];
+        rxF0_comp3[1] = (int16_t)s1[1];
+        rxF0_comp3[2] = (int16_t)s2[0];
+        rxF0_comp3[3] = (int16_t)s2[1];
+        rxF0_comp3[4] = (int16_t)s3[0];
+        rxF0_comp3[5] = (int16_t)s3[1];
+        rxF0_comp3[6] = (int16_t)s4[0];
+        rxF0_comp3[7] = (int16_t)s4[1];     
+        rxF0_comp3 += 8;
+     
+      }
 
-      fprintf(p, "symbol: %d | offset: %d | NRB: %d | re: %d | %d %d\n", symbol, (symbol * 12 * 25), rb, re, rxF0_comp[0], rxF0_comp[1]);
-      fprintf(p, "symbol: %d | offset: %d | NRB: %d | re: %d | %d %d\n", symbol, (symbol * 12 * 25), rb, re, rxF0_comp[2], rxF0_comp[3]);
-      fprintf(p, "symbol: %d | offset: %d | NRB: %d | re: %d | %d %d\n", symbol, (symbol * 12 * 25), rb, re+1, rxF0_comp[4], rxF0_comp[5]);
-      fprintf(p, "symbol: %d | offset: %d | NRB: %d | re: %d | %d %d\n", symbol, (symbol * 12 * 25), rb, re+1, rxF0_comp[6], rxF0_comp[7]);
+      if (symCnt < 4 * frame_parms->N_RB_DL && symbol == 4) {
+        rxF0_comp1[0] = (int16_t)s1[0];
+        rxF0_comp1[1] = (int16_t)s1[1];
+        rxF0_comp1[2] = (int16_t)s2[0];
+        rxF0_comp1[3] = (int16_t)s2[1];
+        rxF0_comp1[4] = (int16_t)s3[0];
+        rxF0_comp1[5] = (int16_t)s3[1];
+        rxF0_comp1[6] = (int16_t)s4[0];
+        rxF0_comp1[7] = (int16_t)s4[1];
+        rxF0_comp1 += 8;
+        
+      } else if (symCnt>= 4 * frame_parms->N_RB_DL && symbol == 4) {
+        rxF0_comp2[0] = (int16_t)s1[0];
+        rxF0_comp2[1] = (int16_t)s1[1];
+        rxF0_comp2[2] = (int16_t)s2[0];
+        rxF0_comp2[3] = (int16_t)s2[1];
+        rxF0_comp2[4] = (int16_t)s3[0];
+        rxF0_comp2[5] = (int16_t)s3[1];
+        rxF0_comp2[6] = (int16_t)s4[0];
+        rxF0_comp2[7] = (int16_t)s4[1];        
+        rxF0_comp2 += 8;
+      } 
 
-      rxF0_comp += 8;
-      indSTBC += 8;
+      if (symCnt < 12 * frame_parms->N_RB_DL && symbol == 5) {
+        rxF0_comp1[0] = (int16_t)s1[0];
+        rxF0_comp1[1] = (int16_t)s1[1];
+        rxF0_comp1[2] = (int16_t)s2[0];
+        rxF0_comp1[3] = (int16_t)s2[1];
+        rxF0_comp1[4] = (int16_t)s3[0];
+        rxF0_comp1[5] = (int16_t)s3[1];
+        rxF0_comp1[6] = (int16_t)s4[0];
+        rxF0_comp1[7] = (int16_t)s4[1];        
+        rxF0_comp1 += 8;
+      } else if (symCnt>= 12 * frame_parms->N_RB_DL && symbol == 5) {
+        rxF0_comp2[0] = (int16_t)s1[0];
+        rxF0_comp2[1] = (int16_t)s1[1];
+        rxF0_comp2[2] = (int16_t)s2[0];
+        rxF0_comp2[3] = (int16_t)s2[1];
+        rxF0_comp2[4] = (int16_t)s3[0];
+        rxF0_comp2[5] = (int16_t)s3[1];
+        rxF0_comp2[6] = (int16_t)s4[0];
+        rxF0_comp2[7] = (int16_t)s4[1];        
+        rxF0_comp2 += 8;
+      } 
+
+
+      if (symCnt < 8 * frame_parms->N_RB_DL && symbol == 6) {
+        rxF0_comp1[0] = (int16_t)s1[0];
+        rxF0_comp1[1] = (int16_t)s1[1];
+        rxF0_comp1[2] = (int16_t)s2[0];
+        rxF0_comp1[3] = (int16_t)s2[1];
+        rxF0_comp1[4] = (int16_t)s3[0];
+        rxF0_comp1[5] = (int16_t)s3[1];
+        rxF0_comp1[6] = (int16_t)s4[0];
+        rxF0_comp1[7] = (int16_t)s4[1];        
+        rxF0_comp1 += 8;
+      } else if (symCnt < 20 * frame_parms->N_RB_DL && symbol == 6) {
+        rxF0_comp2[0] = (int16_t)s1[0];
+        rxF0_comp2[1] = (int16_t)s1[1];
+        rxF0_comp2[2] = (int16_t)s2[0];
+        rxF0_comp2[3] = (int16_t)s2[1];
+        rxF0_comp2[4] = (int16_t)s3[0];
+        rxF0_comp2[5] = (int16_t)s3[1];
+        rxF0_comp2[6] = (int16_t)s4[0];
+        rxF0_comp2[7] = (int16_t)s4[1];        
+        rxF0_comp2 += 8;
+      } else if (symCnt >= 20 * frame_parms->N_RB_DL && symbol == 6) {
+        rxF0_comp3[0] = (int16_t)s1[0];
+        rxF0_comp3[1] = (int16_t)s1[1];
+        rxF0_comp3[2] = (int16_t)s2[0];
+        rxF0_comp3[3] = (int16_t)s2[1];
+        rxF0_comp3[4] = (int16_t)s3[0];
+        rxF0_comp3[5] = (int16_t)s3[1];
+        rxF0_comp3[6] = (int16_t)s4[0];
+        rxF0_comp3[7] = (int16_t)s4[1];          
+        rxF0_comp3 += 8;
+      }
+
+      if (symCnt < 8 * frame_parms->N_RB_DL && symbol == 7) {
+        rxF0_comp1[0] = (int16_t)s1[0];
+        rxF0_comp1[1] = (int16_t)s1[1];
+        rxF0_comp1[2] = (int16_t)s2[0];
+        rxF0_comp1[3] = (int16_t)s2[1];
+        rxF0_comp1[4] = (int16_t)s3[0];
+        rxF0_comp1[5] = (int16_t)s3[1];
+        rxF0_comp1[6] = (int16_t)s4[0];
+        rxF0_comp1[7] = (int16_t)s4[1];     
+        rxF0_comp1 += 8;   
+      }
+
+      fprintf(p, "symbol: %d | offset: %d %d | NRB: %d | re: %d | %d %d | rxF0: %d %d | ch: %d %d | z1: %d %d\n", symbol, jj+0, jj+1, rb, re, s1[0], s1[1], rxF0[0], rxF0[1], ch_11[0], ch_11[1], z1[0], z1[1]);
+      fprintf(p, "symbol: %d | offset: %d %d | NRB: %d | re: %d | %d %d | rxF1: %d %d | ch: %d %d | z2: %d %d\n", symbol, jj+2, jj+3, rb, re, s2[0], s2[1], rxF1[0], rxF1[1], ch_12[0], ch_12[1],  z2[0], z2[1]);
+      fprintf(p, "symbol: %d | offset: %d %d | NRB: %d | re: %d | %d %d | rxF2: %d %d | ch: %d %d | z3: %d %d\n", symbol, jj+4, jj+5, rb, re+1, s3[0], s3[1], rxF0[2], rxF0[3], ch_21[0], ch_21[1],  z3[0], z3[1]);
+      fprintf(p, "symbol: %d | offset: %d %d | NRB: %d | re: %d | %d %d | rxF3: %d %d | ch: %d %d | z4: %d %d\n", symbol, jj+6, jj+7, rb, re+1, s4[0], s4[1], rxF1[2], rxF1[3], ch_22[0], ch_22[1],  z4[0], z4[1]);
+      fprintf(p, "-------------------------------------------------------------------------------------------\n");
+
+      jj += 8;
+
+      symCnt += 4;
+
       rxF0 += 4;
       rxF1 += 4;
       ch_11 += 2;
@@ -5170,10 +5529,6 @@ void dlsch_rx_stbc(LTE_DL_FRAME_PARMS *frame_parms,
     }
   }
   fclose(p);
-
-  if (symbol == 6) {
-    indSTBC = 0;
-  }
 
   free(s1);
   free(s2);
@@ -5247,19 +5602,13 @@ void dlsch_alamouti(LTE_DL_FRAME_PARMS *frame_parms,
   for (rb=0; rb<nb_rb; rb++) {
     for (re=0; re<((pilots==0)?12:8); re+=2) {
       // Alamouti RX combining
-      //      printf("Alamouti: symbol %d, rb %d, re %d: rxF0 (%d,%d,%d,%d), rxF1 (%d,%d,%d,%d)\n",symbol,rb,re,rxF0[0],rxF0[1],rxF0[2],rxF0[3],rxF1[0],rxF1[1],rxF1[2],rxF1[3]);
       rxF0[0] = rxF0[0] + rxF1[2];
       rxF0[1] = rxF0[1] - rxF1[3];
       rxF0[2] = rxF0[2] - rxF1[0];
       rxF0[3] = rxF0[3] + rxF1[1];
-      fprintf(p, "Symbol: %d | jj: %d | NRB: %d | re: %d | pilot: %d | ind: %d | %d %d\n", symbol, (symbol*frame_parms->N_RB_DL*12), rb, re, pilots, jj, rxF0[0], rxF0[1]);
-      fprintf(p, "Symbol: %d | jj: %d | NRB: %d | re: %d | pilot: %d | ind: %d | %d %d\n", symbol, (symbol*frame_parms->N_RB_DL*12), rb, re+1, pilots, jj, rxF0[2], rxF0[3]);
-      //      printf("Alamouti: rxF0 after (%d,%d,%d,%d)\n",rxF0[0],rxF0[1],rxF0[2],rxF0[3]);
 
-      if (symbol == 4) {
-        fclose(p);
-        exit(0);
-      }
+      // fprintf(p, "symbol: %d | offset: %d | NRB: %d | re: %d | %d %d\n",symbol, jj, rb, re, rxF0[0], rxF0[1]);
+      // fprintf(p, "symbol: %d | offset: %d | NRB: %d | re: %d | %d %d\n",symbol, jj, rb, re+1, rxF0[0], rxF0[1]);
 
       rxF0+=4;
       rxF1+=4;
