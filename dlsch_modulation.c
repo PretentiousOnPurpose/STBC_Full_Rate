@@ -43,6 +43,7 @@
 
 //#define is_not_pilot(pilots,re,nushift,use2ndpilots) ((pilots==0) || ((re!=nushift) && (re!=nushift+6)&&((re!=nushift+3)||(use2ndpilots==1))&&((re!=nushift+9)||(use2ndpilots==1)))?1:0)
 
+  static int iisc = 0;
 
 
 uint8_t is_not_pilot(uint8_t pilots, uint8_t re, uint8_t nushift, uint8_t use2ndpilots)
@@ -1210,59 +1211,107 @@ int allocate_REs_in_RB(PHY_VARS_eNB* phy_vars_eNB,
 
         amp = (int16_t)(((int32_t)tmp_amp*ONE_OVER_SQRT2_Q15)>>15);
 
-        switch (mod_order0) {
+        FILE * fpp2 = fopen("data.txt", "a");
+
+        switch (2) {
           case 2:  //QPSK
 
+// x0[*jj + 0] = 1;
+// x0[*jj + 1] = 1;
+// x0[*jj + 2] = 1;
+// x0[*jj + 3] = 1;
+// x0[*jj + 4] = 1;
+// x0[*jj + 5] = 1;
+// x0[*jj + 6] = 1;
+// x0[*jj + 7] = 1;
+
+
             // LOG_UI(PHY, "x1: [%d,%d]\n", x0[*jj + 0],x0[*jj + 1]);
-            xr1 = (x0[*jj + 0]==1) ? (-gain_lin_QPSK) : gain_lin_QPSK;  // Re{x1}
-            xi1 = (x0[*jj + 1]==1) ? (-gain_lin_QPSK) : gain_lin_QPSK;  // Im{x1}
+            xr1 = (x0[*jj + 0]==1) ? (-255) : 255;  // Re{x1}
+            xi1 = (x0[*jj + 1]==1) ? (-255) : 255;  // Im{x1}
             // LOG_UI(PHY, "[xr1, xi1]: [%d,%d]\n", xr1, xi1);
-            
+
+
             // LOG_UI(PHY, "x2: [%d,%d]\n", 0,0);
-            xr2 = (x0[*jj + 2]==1) ? (-gain_lin_QPSK) : gain_lin_QPSK;  // Re{x2}
-            xi2 = (x0[*jj + 3]==1) ? (-gain_lin_QPSK) : gain_lin_QPSK;  // Im{x2}
+            xr2 = (x0[*jj + 2]==1) ? (-255) : 255;  // Re{x2}
+            xi2 = (x0[*jj + 3]==1) ? (-255) : 255;  // Im{x2}
             // LOG_UI(PHY, "[xr2, xi2]: [%d,%d]\n", xr2, xi2);
             
             // LOG_UI(PHY, "x3: [%d,%d]\n", 0,0);
-            xr3 = (x0[*jj + 4]==1) ? (-gain_lin_QPSK) : gain_lin_QPSK;  // Re{x3}
-            xi3 = (x0[*jj + 5]==1) ? (-gain_lin_QPSK) : gain_lin_QPSK;  // Im{x3}
+            xr3 = (x0[*jj + 4]==1) ? (-255) : 255;  // Re{x3}
+            xi3 = (x0[*jj + 5]==1) ? (-255) : 255;  // Im{x3}
             // LOG_UI(PHY, "[xr3, xi3]: [%d,%d]\n", xr3, xi3);
             
             // LOG_UI(PHY, "x4: [%d,%d]\n", 0,0);
-            xr4 = (x0[*jj + 6]==1) ? (-gain_lin_QPSK) : gain_lin_QPSK;  // Re{x4}
-            xi4 = (x0[*jj + 7]==1) ? (-gain_lin_QPSK) : gain_lin_QPSK;  // Im{x4}
+            xr4 = (x0[*jj + 6]==1) ? (-255) : 255;  // Re{x4}
+            xi4 = (x0[*jj + 7]==1) ? (-255) : 255;  // Im{x4}
             // LOG_UI(PHY, "[xr4, xi4]: [%d,%d]\n", xr4, xi4);
-            
+            FILE * finalIn = fopen("finalIn.txt", "a");
+
+            fprintf(finalIn, "%d,", x0[*jj + 0]);
+            fprintf(finalIn, "%d,", x0[*jj + 1]);
+            fprintf(finalIn, "%d,", x0[*jj + 2]);
+            fprintf(finalIn, "%d,", x0[*jj + 3]);
+            fprintf(finalIn, "%d,", x0[*jj + 4]);
+            fprintf(finalIn, "%d,", x0[*jj + 5]);
+            fprintf(finalIn, "%d,", x0[*jj + 6]);
+            fprintf(finalIn, "%d,", x0[*jj + 7]);
+
+            fclose(finalIn);
+
             *jj = *jj + 8;
-            
+
+
             // ----------------- Antenna Port 1 Symbol 1
-            // Re{X1} = Re{a*x1 + b*x3} = a[0]x1[0] − a[1]x1[1] + b[0]x3[0] − b[1]x3[1]
-            ((int16_t *)&tmp_sample1)[0] = (ar*xr1 - ai*xi1 + br*xr3 - bi*xi3)/10000;
-            // Im{X1} = Im{a*x1 + b*x3} = a[0]x1[1] + a[1]x1[0] + b[0]x3[1] + b[1]x3[0]
-            ((int16_t *)&tmp_sample1)[1] = (ar*xi1 + ai*xr1 + br*xi3 + bi*xr3)/10000;
+            ((int16_t *)&tmp_sample1)[0] = (ar*xr1 - ai*xi1)/10000;
+            ((int16_t *)&tmp_sample1)[1] = (ar*xi1 + ai*xr1)/10000;
+
+            ((int16_t *)&tmp_sample1)[0] += (br*xr3 - bi*xi3)/10000;
+            ((int16_t *)&tmp_sample1)[1] += (br*xi3 + bi*xr3)/10000;
             // LOG_UI(PHY, "Sample 1: [%d, %d] \n", ((int16_t*)&tmp_sample1)[0], ((int16_t*)&tmp_sample1)[1]);
 
             // ----------------- Antenna Port 2 Symbol 1
-            // Re{X2} = Re{a*x2 + b*x4} = a[0]x2[0] − a[1]x2[1] + b[0]x4[0] − b[1]x4[1]
-            ((int16_t *)&tmp_sample2)[0] = (ar*xr2 - ai*xi2 + br*xr4 - bi*xi4)/10000;
-            // Im{X1} = Im{a*x2 + b*x4} =  a[0]x2[1] + a[1]x2[0] + b[0]x4[1] + b[1]x4[0]
-            ((int16_t *)&tmp_sample2)[1] = (ar*xi2 + ai*xr2 + br*xi4 + bi*xr4)/10000;
+            ((int16_t *)&tmp_sample2)[0] = (ar*xr2 - ai*xi2)/10000;
+            ((int16_t *)&tmp_sample2)[1] = (ar*xi2 + ai*xr2)/10000;
+
+            ((int16_t *)&tmp_sample2)[0] += (br*xr4 - bi*xi4)/10000;
+            ((int16_t *)&tmp_sample2)[1] += (br*xi4 + bi*xr4)/10000;
             // LOG_UI(PHY, "Sample 2: [%d, %d] \n", ((int16_t*)&tmp_sample2)[0], ((int16_t*)&tmp_sample2)[1]);
 
             // ----------------- Antenna Port 1 Symbol 2
-            // Re{X3} = Re{-c*x2* - d*x4*} =  −c[0]x2[0] − c[1]x2[1] − d[0]x4[0] − d[1]x4[1]
-            ((int16_t *)&tmp_sample3)[0] = (-cr*xr2 - ci*xi2 - dr*xr4 - di*xi4)/10000;
-            // Im{X3} = Im{-c*x2* - d*x4*} = c[0]x2[1] − c[1]x2[0] + d[0]x4[1] − d[1]x4[0])
-            ((int16_t *)&tmp_sample3)[1] = (cr*xi2 - ci*xr2 + dr*xi4 - di*xr4)/10000;
+            ((int16_t *)&tmp_sample3)[0] = (cr*xr2 - ci*-xi2)/10000;
+            ((int16_t *)&tmp_sample3)[1] = (cr*-xi2 + ci*xr2)/10000;
+
+            ((int16_t *)&tmp_sample3)[0] += (dr*xr4 - di*-xi4)/10000;
+            ((int16_t *)&tmp_sample3)[1] += (dr*-xi4 + di*xr4)/10000;
+
+            ((int16_t *)&tmp_sample3)[0] = -((int16_t *)&tmp_sample3)[0];
+            ((int16_t *)&tmp_sample3)[1] = -((int16_t *)&tmp_sample3)[1];
+
             // LOG_UI(PHY, "Sample 3: [%d, %d] \n", ((int16_t*)&tmp_sample3)[0], ((int16_t*)&tmp_sample3)[1]);
 
             // ----------------- Antenna Port 2 Symbol 2
-            // Re{X4} = Re{c*x1* + d*x3*} = c[0]x1[0] + c[1]x1[1] + d[0]x3[0] + d[1]x3[1]
-            ((int16_t *)&tmp_sample4)[0] = (cr*xr1 + ci*xi1 + dr*xr3 + di*xi3)/10000;
-            // Im{X4} = Im{c*x2* + d*x4*} = c[1]x1[0] − c[0]x1[1] + d[1]x3[0] − d[0]x3[1]
-            ((int16_t *)&tmp_sample4)[1] = (ci*xr1 - cr*xi1 + di*xr3 - dr*xi3)/10000;
+            ((int16_t *)&tmp_sample4)[0] = (cr*xr1 - ci*-xi1)/10000;
+            ((int16_t *)&tmp_sample4)[1] = (cr*-xi1 + ci*xr1)/10000;
+
+            ((int16_t *)&tmp_sample4)[0] += (dr*xr3 - di*-xi3)/10000;
+            ((int16_t *)&tmp_sample4)[1] += (dr*-xi3 + di*xr3)/10000;
             // LOG_UI(PHY, "Sample 4: [%d, %d] \n", ((int16_t*)&tmp_sample4)[0], ((int16_t*)&tmp_sample4)[1]);
-            
+            // fprintf(fpp2, "%d %d\n", ((int16_t *)&tmp_sample1)[0], ((int16_t *)&tmp_sample1)[1]);
+            // fprintf(fpp2, "%d %d\n", ((int16_t *)&tmp_sample2)[0], ((int16_t *)&tmp_sample2)[1]);
+            // fprintf(fpp2, "%d %d\n", ((int16_t *)&tmp_sample3)[0], ((int16_t *)&tmp_sample3)[1]);
+            // fprintf(fpp2, "%d %d\n", ((int16_t *)&tmp_sample4)[0], ((int16_t *)&tmp_sample4)[1]);
+
+            // // LOG_UI(PHY, "Sample 4: [%d, %d] \n", ((int16_t*)&tmp_sample4)[0], ((int16_t*)&tmp_sample4)[1]);
+            fprintf(fpp2, "%d %d\n", ((int16_t *)&tmp_sample1)[0], ((int16_t *)&tmp_sample1)[1]);
+            fprintf(fpp2, "%d %d\n", ((int16_t *)&tmp_sample2)[0], ((int16_t *)&tmp_sample2)[1]);
+            fprintf(fpp2, "%d %d\n", ((int16_t *)&tmp_sample3)[0], ((int16_t *)&tmp_sample3)[1]);
+            fprintf(fpp2, "%d %d\n", ((int16_t *)&tmp_sample4)[0], ((int16_t *)&tmp_sample4)[1]);
+
+            fclose(fpp2);
+
+
+            // exit(0);
             
 	          //gain_lin_QPSK (=amp/sqrt(2)) is already contains the power offset from rho_a/rho_b, so here we do not need divide by sqrt(2) anymore
             ((int16_t *)&txdataF[0][tti_offset])[0] += (int16_t)((((int16_t *)&tmp_sample1)[0])); // Map Re{X1} to Antenna Port 1
@@ -2294,7 +2343,6 @@ int dlsch_modulation(PHY_VARS_eNB* phy_vars_eNB,
                      LTE_eNB_DLSCH_t *dlsch1)
 {
   LTE_DL_FRAME_PARMS *frame_parms = &phy_vars_eNB->frame_parms;
-
   uint8_t nsymb;
   uint8_t harq_pid = -1; //= dlsch0->current_harq_pid;
   LTE_DL_eNB_HARQ_t *dlsch0_harq = NULL;
@@ -2725,8 +2773,7 @@ int dlsch_modulation(PHY_VARS_eNB* phy_vars_eNB,
                                dlsch1->harq_processes[harq_pid]->mimo_mode,
                                dlsch1->harq_processes[harq_pid]->pmi_alloc,
                                rb);
-
-
+      
       allocate_REs(phy_vars_eNB,
                          txdataF,
                          &jj,
